@@ -1,6 +1,7 @@
 # gDebugV2.0
 
 The current  github address is at https://github.com/gxt-kt/gDebugV2.0
+
 The gDebugV1.0 code is at https://github.com/gxt-kt/gDebug/
 
 ***
@@ -11,6 +12,7 @@ If you have use the qDebuf() function of "Qt", you must use this module easily. 
 
 You can use the default gDebug/gDebug() function to output the debug stream such as `gDebug("hello world");`
 Complexly you can write like `gDebug("hello") << "world";` and so on.  The detail code you can see example.
+
 And the default gDebug/gDebug() has enable the space and newline.
 If you use the class DebugStream create a new instantiation. The space function is exist but the newline is invalid.
 
@@ -79,6 +81,8 @@ hello world!
 ```
 
 ## something else
-You can define the `NO_DEBUG_OUTPUT` , and there will not stream out.
-Also you can use `mystream.out_en(false);` to disable the stream out.
+
+You can define the `NO_DEBUG_OUTPUT` , and there will not stream out. Notice that this will disable all the instantiation's streamout.
+
+Also you can use `mystream.out_en(false);` to disable the current instantiation's stream out.
 
