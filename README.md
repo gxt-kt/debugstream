@@ -79,7 +79,33 @@ hello world!
 11223344
 11 22 33 44
 ```
+## example3
+**create a new instantiation with your stream out function**
 
+step:
+1. Define a function with type `void YourFunName(const char *str, int num) {
+   // ... such as  printf("%.*s",num,str); }`
+2. Instantiate class `DebugStream demo(YourFunName,256);` the first var is your function name, the second var is the buffer size (default 256).
+```c++
+#include "debugstream.h"
+
+void YourFunName(const char *str, int num) {
+  printf("%.*s",num,str);
+}
+
+int main() {
+  DebugStream demo(YourFunName,256);
+  demo << "hello world!" << endl;
+}
+```
+
+the stream out text:
+
+```
+hello world!
+
+
+```
 ## something else
 
 You can define the `NO_DEBUG_OUTPUT` , and there will not stream out. Notice that this will disable all the instantiation's streamout.
