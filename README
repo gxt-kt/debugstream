@@ -1,7 +1,6 @@
 # gDebugV2.0
 
 The current  github address is at https://github.com/gxt-kt/gDebugV2.0
-
 The gDebugV1.0 code is at https://github.com/gxt-kt/gDebug/
 
 ***
@@ -80,8 +79,6 @@ hello world!
 ```
 
 ## something else
-
 You can define the `NO_DEBUG_OUTPUT` , and there will not stream out.
-
 Also you can use `mystream.out_en(false);` to disable the stream out.
 
