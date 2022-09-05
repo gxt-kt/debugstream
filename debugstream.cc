@@ -48,6 +48,12 @@ DebugStream &DebugStream::operator()(const char *fmt, ...) {
   va_end(ap);
   uint16_t i = strlen((const char *) DebugStreamBuf);
   fun(DebugStreamBuf, i);
+
+  // solve the bug that add newline still add space
+  if(DebugStreamBuf[i-1]==0X0A||DebugStreamBuf[i-1]==0X0D) {
+    newline_= true;
+  }
+
   return *this;
 }
 

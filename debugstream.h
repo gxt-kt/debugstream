@@ -3,6 +3,7 @@
  * @author gxt_kt (gxt_kt@163.com)
  * @brief  If you have use the qDebuf() function of "Qt", you must use this module easily.
  * And the qDebug is change name to gDebug here. The detail see the "@attention".
+ * The github address is https://github.com/gxt-kt/gDebugV2.0
  * @version 0.1
  * @date 2022-09-05
  *
@@ -21,6 +22,7 @@
 #include <string>
 #include <cstdarg>
 #include <cstring>
+#include <cstdio>
 
 // There will no debug stream output if define the NO_DEBUG_OUTPUT
 //#define NO_DEBUG_OUTPUT
@@ -55,7 +57,8 @@ class DebugStream {
   inline DebugStream &print()                                    {return *this;}
   inline DebugStream &operator<<(const DebugStream& stream)      {newline=false;return MayBeSpace();}
   inline DebugStream &operator()()                        {return *this;}
-  inline DebugStream &operator<<(DebugStreamEndl struct_) {(*this)<<"\n";return *this;}
+  inline DebugStream &operator<<(DebugStreamEndl struct_) {(*this)<<"\n";
+    return *this;}
 
   inline DebugStream &operator<<(const char *str)         {(*this)("%s",str);return MayBeSpace();}
   inline DebugStream &operator<<(const std::string& str)  {(*this)("%s",str.c_str());return MayBeSpace();}
@@ -67,16 +70,26 @@ class DebugStream {
   inline DebugStream &operator<<(unsigned int t)          {(*this)("%d",t);return MayBeSpace();}
   inline DebugStream &operator<<(signed long t)           {(*this)("%ld",t);return MayBeSpace();}
   inline DebugStream &operator<<(unsigned long t)         {(*this)("%ld",t);return MayBeSpace();}
+  inline DebugStream &operator<<(signed long long t)      {(*this)("%ld",t);return MayBeSpace();}
+  inline DebugStream &operator<<(unsigned long long t)    {(*this)("%ld",t);return MayBeSpace();}
   inline DebugStream &operator<<(float t)                 {(*this)("%f",t);return MayBeSpace();}
   inline DebugStream &operator<<(double t)                {(*this)("%lf",t);return MayBeSpace();}
-  inline DebugStream &operator<<(const void * t)          {return *this;}     //none complete
-  inline DebugStream &operator<<(std::nullptr_t)          {return *this;}     //none complete
+  inline DebugStream &operator<<(const void * t)          {return *this;}
+  inline DebugStream &operator<<(std::nullptr_t)          {(*this)("(nullptr)");return *this;}
+  inline DebugStream &operator<<(const char16_t* t)       {(*this)("%s",t);return MayBeSpace();}
+  inline DebugStream &operator<<(char16_t t)              {(*this)("%c",t);return MayBeSpace();}
+  inline DebugStream &operator<<(char32_t t)              {(*this)("%c",t);return MayBeSpace();}
+
   //======================================
  public:
   DebugStream &operator()(const char *fmt, ...);
 
  private:
-  inline DebugStream &MayBeSpace() {if(space){(*this)(" ");}return *this;}
+  inline DebugStream &MayBeSpace() {
+    if (!newline_&&space) (*this)(" ");
+    newline_ = false;
+    return *this;
+  }
 
  private:
   DebugSendStringCallBack fun;
@@ -85,6 +98,7 @@ class DebugStream {
   bool out_en{true};
   bool space{true};
   bool newline{true};
+  bool newline_{false}; // solve the bug that add newline still add space
 };
 
 
