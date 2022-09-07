@@ -28,7 +28,7 @@
 //#define NO_DEBUG_OUTPUT
 
 // Define the CallBackFunction type
-typedef void (*DebugSendStringCallBack)(const char *str, int num);
+using DebugSendStringCallBack= void (*)(const char *str, int num);
 
 // The default call back function : use the printf to send the stream
 void DebugSendStringCallBack_Default_(const char *str, int num);
