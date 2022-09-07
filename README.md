@@ -2,7 +2,7 @@
 
 The current  github address is at https://github.com/gxt-kt/gDebugV2.0
 
-The gDebugV1.0 code is at https://github.com/gxt-kt/gDebug/
+The gDebugV1.0 code is at https://github.com/gxt-kt/gDebug/ but is abandoned.
 
 ***
 
