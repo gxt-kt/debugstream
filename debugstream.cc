@@ -1,14 +1,18 @@
 #include "debugstream.h"
 
+#include <utility>
+
 void DebugSendStringCallBack_Default_(const char *str, int num) {
   printf("%.*s",num,str);
 }
 
 DebugStreamEndl endl;
 
-DebugStream::DebugStream(DebugSendStringCallBack fun, int buf_len) : fun(fun), buf_len(buf_len) {
+
+DebugStream::DebugStream \
+(std::function<void(const char*,int)>  fun_ , int buf_len_ ) : fun(std::move(fun_)) ,buf_len(buf_len_)  {
   DebugStreamBuf = new char[buf_len];
-};
+}
 DebugStream::DebugStream(const DebugStream &obj) {
   this->buf_len = obj.buf_len;
   this->out_en = obj.out_en;

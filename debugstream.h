@@ -20,15 +20,13 @@
 #define DEBUGSTREAM_H__
 
 #include <string>
+#include <functional>
 #include <cstdarg>
 #include <cstring>
 #include <cstdio>
 
 // There will no debug stream output if define the NO_DEBUG_OUTPUT
 //#define NO_DEBUG_OUTPUT
-
-// Define the CallBackFunction type
-using DebugSendStringCallBack= void (*)(const char *str, int num);
 
 // The default call back function : use the printf to send the stream
 void DebugSendStringCallBack_Default_(const char *str, int num);
@@ -41,7 +39,8 @@ class DebugStream {
  public:
   //======================================
   explicit DebugStream \
-  (DebugSendStringCallBack fun=DebugSendStringCallBack_Default_, int buf_len = 256);
+  (std::function<void(const char*,int)>  fun_ = DebugSendStringCallBack_Default_, \
+  int buf_len_ = 256);
   DebugStream(const DebugStream &obj);
   DebugStream& operator=(const DebugStream &obj);
   ~DebugStream();
@@ -92,7 +91,7 @@ class DebugStream {
   }
 
  private:
-  DebugSendStringCallBack fun;
+  std::function<void(const char*,int)> fun{};
   char *DebugStreamBuf;
   int buf_len{256};
   bool out_en{true};
