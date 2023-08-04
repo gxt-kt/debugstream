@@ -4,8 +4,8 @@
  * @brief  If you have use the qDebug() function of "Qt" before, you must use this module easily.
  * And the qDebug is change name to gDebug here. The detail see the "@attention".
  * The github address is https://github.com/gxt-kt/gDebugV2.0
- * @version 0.67
- * @date 2023-05-15
+ * @version 0.72
+ * @date 2023-08-2
  *
  * @copyright Copyright (c) 2022
  *
@@ -22,6 +22,7 @@
 
 #include <string>
 #include <functional>
+#include <memory>
 #include <cstdarg>
 #include <cstring>
 #include <cstdio>
@@ -986,17 +987,19 @@ class DebugStream :
   (std::function<void(const char*,int)>  fun_ = DebugSendStringCallBack_Default_, \
   int buf_len_ = 256);
   DebugStream(const DebugStream &obj);
+  DebugStream(DebugStream &&obj);
   DebugStream& operator=(const DebugStream &obj);
+  DebugStream& operator=(DebugStream &&obj);
   ~DebugStream();
   //===============================================================
   inline DebugStream &OutEn(bool en)    {out_en=en;       return *this;}
   inline DebugStream &NoNewLine()       {newline=false;   return *this;}
+  inline DebugStream &NewLine()         {newline=true;    return *this;}
   inline DebugStream &Space()           {space=true;      return *this;}
   inline DebugStream &NoSpace()         {space=false;     return *this;}
   inline DebugStream &Terminate()       {terminate=true;  return *this;}
   inline DebugStream &ClearColor()      {clear_color=true;return *this;}
   //===============================================================
-  //=========================================
 
   //=========================================
   // inline DebugStream &print()                                    {return *this;}
@@ -1101,12 +1104,12 @@ class DebugStream :
   }
   //======================================
  private:
-  std::function<void(const char*,int)> fun{};
-  char *DebugStreamBuf;
+  std::function<void(const char*,int)> fun;
   int buf_len{256};
+  std::unique_ptr<char[]> buffer;
   bool out_en{true};
   bool space{true};
-  bool newline{true};
+  bool newline{false};
   bool newline_{false}; // solve the bug that add newline still add space
   bool terminate{false}; // if true will terminate program if true Use for debug error info
   bool clear_color{false}; // if true will clear color when deconstruct object
@@ -1117,42 +1120,53 @@ class DebugStream :
 };
 
 inline DebugStream::DebugStream
-(std::function<void(const char*,int)>  fun_ , int buf_len_ ) : fun(std::move(fun_)) ,buf_len(buf_len_)
+(std::function<void(const char*,int)>  fun_ , int buf_len_ ) : fun(fun_) ,buf_len(buf_len_)
 #if PPRINT_EN
 , pprint::PrettyPrinter(pprint_stream)  
 #endif
 {
-  DebugStreamBuf = new char[buf_len];
+  buffer = std::unique_ptr<char[]>(new char[buf_len]);
 }
 
 inline DebugStream::DebugStream(const DebugStream &obj) {
   this->buf_len = obj.buf_len;
   this->out_en = obj.out_en;
   this->fun = obj.fun;
-  // Re-divide a piece of memory, and the function pointer does not need to be reset
-  this->DebugStreamBuf = new char[this->buf_len];
+  this->buffer = std::unique_ptr<char[]>(new char[buf_len]);
 }
 
-inline DebugStream &DebugStream::operator=(const DebugStream &obj) {
-  if (this->DebugStreamBuf != nullptr) {
-    // Compared with the copy construction, the memory originally pointed to by delete is required
-    delete DebugStreamBuf;
-  }
+inline DebugStream::DebugStream(DebugStream &&obj) {
   this->buf_len = obj.buf_len;
   this->out_en = obj.out_en;
   this->fun = obj.fun;
-  // Re-divide a piece of memory, and the function pointer does not need to be reset
-  this->DebugStreamBuf = new char[this->buf_len];
+  buffer=std::move(obj.buffer);
+}
+
+inline DebugStream &DebugStream::operator=(const DebugStream &obj) {
+  if (this != &obj) {
+    this->buf_len = obj.buf_len;
+    this->out_en = obj.out_en;
+    this->fun = obj.fun;
+    this->buffer = std::unique_ptr<char[]>(new char[buf_len]);
+  }
+  return *this;
+}
+
+inline DebugStream &DebugStream::operator=(DebugStream &&obj) {
+  if (this != &obj) {
+    this->buf_len = obj.buf_len;
+    this->out_en = obj.out_en;
+    this->fun = obj.fun;
+    this->buffer = std::move(obj.buffer);
+  }
   return *this;
 }
 
 inline DebugStream::~DebugStream() {
+  if(terminate) std::terminate(); 
+  if(buffer==nullptr) return; // If buffer is nullptr, then cannot use print
   if(clear_color) (*this)<<normal_fg<<normal_bg; 
   if(newline) (*this)("\n"); // send a "\n"
-  if (this->DebugStreamBuf != nullptr) {
-    delete DebugStreamBuf;
-  }
-  if(terminate) std::terminate(); 
 }
 
 inline DebugStream &DebugStream::printf(const char *fmt, ...) {
@@ -1164,13 +1178,13 @@ inline DebugStream &DebugStream::printf(const char *fmt, ...) {
   }
   va_list ap;
   va_start(ap, fmt);
-  vsprintf((char *) DebugStreamBuf, fmt, ap);
+  vsprintf((char *) buffer.get() , fmt, ap);
   va_end(ap);
-  int i = strlen((const char *) DebugStreamBuf);
-  fun(DebugStreamBuf, i);
+  int i = strlen((const char *) buffer.get());
+  fun(buffer.get(), i);
 
   // solve the bug that add newline still add space
-  if(DebugStreamBuf[i-1]==0X0A||DebugStreamBuf[i-1]==0X0D) {
+  if(buffer.get()[i-1]==0X0A||buffer.get()[i-1]==0X0D) {
     newline_= true;
   }
 
@@ -1213,14 +1227,87 @@ inline std::string TypeImpl() {
 #define TYPET(type) (gxt::TypeImpl<type>())
 #define TYPE(type) (gxt::TypeImpl<decltype(type)>())
 
-};
-
 // Usage: gDebug() << VAR(a) // stdout: a = ${a}
 #define VAR(x) #x<<"="<<x 
 
+// Define a macro to get the parameter at the specified position in the parameter list
+#define GET_ARG(N, ...) GET_ARG_##N (__VA_ARGS__)
+#define GET_ARG_1(arg, ...) arg
+#define GET_ARG_2(arg, ...) GET_ARG_1(__VA_ARGS__) 
+#define GET_ARG_3(arg, ...) GET_ARG_2(__VA_ARGS__) 
+#define GET_ARG_4(arg, ...) GET_ARG_3(__VA_ARGS__) 
+#define GET_ARG_5(arg, ...) GET_ARG_4(__VA_ARGS__) 
+
+
+// Get the number of input parameters
+template <typename ...T>
+__attribute__((deprecated))
+inline int GetParaNumber(T ...para){ return sizeof...(para); }
+
+// Prevent input null parameter
+template <typename T,T value>
+__attribute__((deprecated))
+inline T PreventNULL(const T& para){ return para;}
+template <typename T,T value>
+__attribute__((deprecated))
+inline T PreventNULL(){return value;}
+
+};
+
+#define gDebugN(a,...) \
+    [=](int cnt = 1,int max_print_cnt = -1) { \
+      static int cnt_i{cnt}; \
+      static int max_print_i{0}; \
+      if(max_print_cnt>=0&&max_print_i>=max_print_cnt) return; \
+      if (cnt_i++ >= cnt) { \
+        gDebug(a); \
+        cnt_i = 1; \
+        ++max_print_i; \
+      } \
+    }(__VA_ARGS__)
+
+
 // #define gDebug (gxt::DebugStream(gxt::DebugSendStringCallBack_Default_)<<gxt::normal_fg<<gxt::normal_bg)
-#define gDebug(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).ClearColor()<<gxt::normal_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugWarn(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).ClearColor()<<gxt::black_fg<<gxt::yellow_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugError(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).ClearColor().Terminate()<<gxt::white_fg<<gxt::red_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebug(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::normal_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugWarn(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::black_fg<<gxt::yellow_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugError(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor().Terminate()<<gxt::white_fg<<gxt::red_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+
+
+#define gDebugCol1(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::green_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugCol2(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::blue_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugCol3(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::magenta_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugCol4(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::cyan_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugCol5(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::red_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+
+
+#include <chrono>
+
+// 定义宏 TIME_BEGIN 来开始计时
+#define TIME_BEGIN(...) \
+    auto __start_time__##__VA_ARGS__ = std::chrono::high_resolution_clock::now();
+
+// 定义宏 TIME_END 来打印输出执行时间
+#define TIME_END(...) \
+    {\
+      auto __end_time__##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
+      auto __duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__##__VA_ARGS__ - __start_time__##__VA_ARGS__).count(); \
+      if(std::string(#__VA_ARGS__).empty()) \
+      std::cout << "Default" << " Execution time: " << __duration_time__##__VA_ARGS__ << " ms" << std::endl; \
+      else \
+      std::cout << #__VA_ARGS__ << " Execution time: " << __duration_time__##__VA_ARGS__ << " ms" << std::endl; \
+    }
+
+#define TIME_LOOP(...) \
+  { \
+    static auto __time_loop_begin_##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
+    static size_t __time_loop_i__##__VA_ARGS__ = 0; \
+    auto __time_loop_end_##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
+    auto __loop_duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__time_loop_end_##__VA_ARGS__ - __time_loop_begin_##__VA_ARGS__).count(); \
+    __time_loop_begin_##__VA_ARGS__=__time_loop_end_##__VA_ARGS__;\
+    if(__time_loop_i__##__VA_ARGS__==0) std::cout << "TIME_LOOP(" << #__VA_ARGS__ << "):" << __time_loop_i__##__VA_ARGS__ << " initialize" << std::endl; \
+    else std::cout << "TIME_LOOP(" << #__VA_ARGS__ << "):" << __time_loop_i__##__VA_ARGS__ << " Execution time: " << __loop_duration_time__##__VA_ARGS__ << " ms" << std::endl; \
+    ++__time_loop_i__##__VA_ARGS__; \
+  }
 
 #endif //DEBUGSTREAM_H__
+
