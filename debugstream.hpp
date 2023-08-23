@@ -1259,7 +1259,7 @@ inline T PreventNULL(){return value;}
 };
 
 #define gDebugN(a,...) \
-    [=](int cnt = 1,int max_print_cnt = -1) { \
+    [=](int max_print_cnt = -1,int cnt = 1) { \
       static int cnt_i{cnt}; \
       static int max_print_i{0}; \
       if(max_print_cnt>=0&&max_print_i>=max_print_cnt) return; \
