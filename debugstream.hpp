@@ -4,8 +4,8 @@
  * @brief  If you have use the qDebug() function of "Qt" before, you must use this module easily.
  * And the qDebug is change name to gDebug here. The detail see the "@attention".
  * The github address is https://github.com/gxt-kt/gDebugV2.0
- * @version 0.72
- * @date 2023-08-2
+ * @version 0.73
+ * @date 2023-08-23
  *
  * @copyright Copyright (c) 2022
  *
@@ -1163,7 +1163,11 @@ inline DebugStream &DebugStream::operator=(DebugStream &&obj) {
 }
 
 inline DebugStream::~DebugStream() {
-  if(terminate) std::terminate(); 
+  if(terminate) {
+    (*this)<<normal_fg<<normal_bg; // mandatory clear the color
+    (*this)("\n"); // mandatory put a new line in case the error not output
+    std::terminate();
+  }
   if(buffer==nullptr) return; // If buffer is nullptr, then cannot use print
   if(clear_color) (*this)<<normal_fg<<normal_bg; 
   if(newline) (*this)("\n"); // send a "\n"
