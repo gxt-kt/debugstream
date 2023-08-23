@@ -1270,18 +1270,16 @@ inline T PreventNULL(){return value;}
       } \
     }(__VA_ARGS__)
 
+#define gDebugCol(col_fg,col_bg,...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
 
-// #define gDebug (gxt::DebugStream(gxt::DebugSendStringCallBack_Default_)<<gxt::normal_fg<<gxt::normal_bg)
-#define gDebug(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::normal_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugWarn(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::black_fg<<gxt::yellow_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugError(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor().Terminate()<<gxt::white_fg<<gxt::red_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-
-
-#define gDebugCol1(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::green_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugCol2(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::blue_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugCol3(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::magenta_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugCol4(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::cyan_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugCol5(...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<gxt::red_fg<<gxt::normal_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebug(...) gDebugCol(gxt::normal_fg,gxt::normal_bg,__VA_ARGS__)
+#define gDebugWarn(...) gDebugCol(gxt::black_fg,gxt::yellow_bg,__VA_ARGS__)
+#define gDebugError(...) gDebugCol(gxt::white_fg,gxt::red_bg,__VA_ARGS__).Terminate()
+#define gDebugCol1(...) gDebugCol(gxt::green_fg,gxt::normal_bg,__VA_ARGS__)
+#define gDebugCol2(...) gDebugCol(gxt::blue_fg,gxt::normal_bg,__VA_ARGS__)
+#define gDebugCol3(...) gDebugCol(gxt::magenta_fg,gxt::normal_bg,__VA_ARGS__)
+#define gDebugCol4(...) gDebugCol(gxt::cyan_fg,gxt::normal_bg,__VA_ARGS__)
+#define gDebugCol5(...) gDebugCol(gxt::red_fg,gxt::normal_bg,__VA_ARGS__)
 
 
 #include <chrono>
