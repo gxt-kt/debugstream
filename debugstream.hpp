@@ -1285,6 +1285,7 @@ inline T PreventNULL(){return value;}
 #include <chrono>
 #include <thread>
 
+// time lib
 namespace gxt{
 
 // 定义宏 TIME_BEGIN 来开始计时
@@ -1329,6 +1330,31 @@ inline void SleepUs(int64_t time) {
 }
 inline void SleepNs(int64_t time) {
   std::this_thread::sleep_for(std::chrono::nanoseconds(time));  
+}
+
+inline long GetTime() {
+  auto time = std::chrono::duration_cast<std::chrono::seconds>(
+                  std::chrono::system_clock::now().time_since_epoch())
+                  .count();
+  return time;
+}
+inline long GetTimeMs() {
+  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  std::chrono::system_clock::now().time_since_epoch())
+                  .count();
+  return time;
+}
+inline long GetTimeUs() {
+  auto time = std::chrono::duration_cast<std::chrono::microseconds>(
+                  std::chrono::system_clock::now().time_since_epoch())
+                  .count();
+  return time;
+}
+inline long GetTimeNs() {
+  auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(
+                  std::chrono::system_clock::now().time_since_epoch())
+                  .count();
+  return time;
 }
 
 }
