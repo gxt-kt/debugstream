@@ -1283,6 +1283,9 @@ inline T PreventNULL(){return value;}
 
 
 #include <chrono>
+#include <thread>
+
+namespace gxt{
 
 // 定义宏 TIME_BEGIN 来开始计时
 #define TIME_BEGIN(...) \
@@ -1290,26 +1293,46 @@ inline T PreventNULL(){return value;}
 
 // 定义宏 TIME_END 来打印输出执行时间
 #define TIME_END(...) \
-    {\
+    [&]()->std::string{ \
       auto __end_time__##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
       auto __duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__##__VA_ARGS__ - __start_time__##__VA_ARGS__).count(); \
+      std::string res; \
       if(std::string(#__VA_ARGS__).empty()) \
-      std::cout << "Default" << " Execution time: " << __duration_time__##__VA_ARGS__ << " ms" << std::endl; \
+      res = std::string("Default") + " Time: " + std::to_string(__duration_time__##__VA_ARGS__) + " ms"; \
       else \
-      std::cout << #__VA_ARGS__ << " Execution time: " << __duration_time__##__VA_ARGS__ << " ms" << std::endl; \
-    }
+      res = std::string(#__VA_ARGS__) + " Time: " + std::to_string(__duration_time__##__VA_ARGS__) + " ms"; \
+      return res; \
+    }()
 
 #define TIME_LOOP(...) \
-  { \
+  []()->std::string{ \
     static auto __time_loop_begin_##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
     static size_t __time_loop_i__##__VA_ARGS__ = 0; \
     auto __time_loop_end_##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
     auto __loop_duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__time_loop_end_##__VA_ARGS__ - __time_loop_begin_##__VA_ARGS__).count(); \
     __time_loop_begin_##__VA_ARGS__=__time_loop_end_##__VA_ARGS__;\
-    if(__time_loop_i__##__VA_ARGS__==0) std::cout << "TIME_LOOP(" << #__VA_ARGS__ << "):" << __time_loop_i__##__VA_ARGS__ << " initialize" << std::endl; \
-    else std::cout << "TIME_LOOP(" << #__VA_ARGS__ << "):" << __time_loop_i__##__VA_ARGS__ << " Execution time: " << __loop_duration_time__##__VA_ARGS__ << " ms" << std::endl; \
+    std::string res; \
+    if(__time_loop_i__##__VA_ARGS__==0) res= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): " + std::to_string(__time_loop_i__##__VA_ARGS__) + " initialize"; \
+    else res= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): " + std::to_string(__time_loop_i__##__VA_ARGS__) + " Time: " + std::to_string(__loop_duration_time__##__VA_ARGS__) + " ms"; \
     ++__time_loop_i__##__VA_ARGS__; \
-  }
+    return res;\
+  }()
+
+inline void Sleep(std::int64_t time) {
+  std::this_thread::sleep_for(std::chrono::seconds(time));  
+}
+inline void SleepMs(int64_t time) {
+  std::this_thread::sleep_for(std::chrono::milliseconds(time));  
+}
+inline void SleepUs(int64_t time) {
+  std::this_thread::sleep_for(std::chrono::microseconds(time));  
+}
+inline void SleepNs(int64_t time) {
+  std::this_thread::sleep_for(std::chrono::nanoseconds(time));  
+}
+
+}
+
 
 #endif //DEBUGSTREAM_H__
 
