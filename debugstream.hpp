@@ -1207,9 +1207,9 @@ inline std::string FileLine(const std::string& file_name="",int line_num=-1) {
   }
   return res;
 }
-#define FILE_LINE gxt::FileLine(__FILE__, __LINE__)
-#define FILE gxt::FileLine(__FILE__, -1)
-#define LINE gxt::FileLine("", __LINE__)
+#define G_FILE_LINE gxt::FileLine(__FILE__, __LINE__)
+#define G_FILE gxt::FileLine(__FILE__, -1)
+#define G_LINE gxt::FileLine("", __LINE__)
 
 
 // Type Name Implement
@@ -1302,8 +1302,23 @@ namespace gxt{
       res = std::string("Default") + " Time: " + std::to_string(__duration_time__##__VA_ARGS__) + " ms"; \
       else \
       res = std::string(#__VA_ARGS__) + " Time: " + std::to_string(__duration_time__##__VA_ARGS__) + " ms"; \
+      gDebugCol1()<<res; \
       return res; \
     }()
+
+// 定义宏 TIME_CODE 来开始计算代码执行时间
+#define TIME_CODE(...) \
+  [&](){ \
+    auto __start_time__code__ = std::chrono::high_resolution_clock::now(); \
+    __VA_ARGS__; \
+    auto __end_time__code__ = std::chrono::high_resolution_clock::now(); \
+    auto __duration_time__code__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__code__ - __start_time__code__).count(); \
+    std::string str; \
+    if(std::string(#__VA_ARGS__).empty()) str=""; \
+    else \
+    str = std::string(#__VA_ARGS__) + " Time: " + std::to_string(__duration_time__code__) + " ms"; \
+    gDebugCol1() << str; \
+  }();
 
 #define TIME_LOOP(...) \
   []()->std::string{ \
@@ -1316,6 +1331,7 @@ namespace gxt{
     if(__time_loop_i__##__VA_ARGS__==0) res= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): " + std::to_string(__time_loop_i__##__VA_ARGS__) + " initialize"; \
     else res= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): " + std::to_string(__time_loop_i__##__VA_ARGS__) + " Time: " + std::to_string(__loop_duration_time__##__VA_ARGS__) + " ms"; \
     ++__time_loop_i__##__VA_ARGS__; \
+    gDebugCol1()<<res; \
     return res;\
   }()
 
