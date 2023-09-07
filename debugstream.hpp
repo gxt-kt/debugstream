@@ -29,15 +29,11 @@
 #include <sstream>
 
 // Reference : https://github.com/p-ranav/pprint
-#define PPRINT_EN 1
 
 // There will no debug stream output if define the NO_DEBUG_OUTPUT
 // #define NO_DEBUG_OUTPUT
 
 
-
-
-#if PPRINT_EN
 #include <iostream>
 #include <string>
 #include <typeinfo>
@@ -73,11 +69,8 @@
 #include <memory>
 #include <cxxabi.h>
 #endif
-#endif
 
 namespace gxt {
-
-#if PPRINT_EN
 
 // support c++17 variant and optional
 #define SUPPORTS_CPP17 (__cplusplus >= 201703L)
@@ -173,7 +166,7 @@ namespace pprint {
 
     PrettyPrinter(std::ostream& stream = std::cout) :
       stream_(stream),
-      line_terminator_("\n"),
+      line_terminator_(""),
       indent_(2),
       quotes_(false),
       compact_(false) {}
@@ -915,11 +908,14 @@ namespace pprint {
   };
 
 }
-#endif
 
 // The default call back function : use the printf to send the stream
-inline void DebugSendStringCallBack_Default_(const char *str, int num) {
-  printf("%.*s",num,str);
+// inline void DebugSendStringCallBack_Default_(const char *str, int num) {
+//   std::printf("%.*s",num,str);
+// }
+inline void DebugSendStringCallBack_Default_(std::string str) {
+  std::cout << str;
+  // std::printf("%s",str.c_str());
 }
 
 // Set the endl compatible with std::endl;
@@ -975,17 +971,12 @@ class debug_error_t       {}; inline void ERROR       (debug_error_t)       {}
 class debug_fatal_error_t {}; inline void FATAL_ERROR (debug_fatal_error_t) {}
 
 
-class DebugStream : 
-      public std::stringstream
-#if PPRINT_EN
-, public pprint::PrettyPrinter
-#endif
-{
+class DebugStream {
  public:
   //======================================
   explicit DebugStream \
-  (std::function<void(const char*,int)>  fun_ = DebugSendStringCallBack_Default_, \
-  int buf_len_ = 256);
+  (std::function<void(const std::string&)>  fun_ = DebugSendStringCallBack_Default_, \
+  int buf_len_ = 1024);
   DebugStream(const DebugStream &obj);
   DebugStream(DebugStream &&obj);
   DebugStream& operator=(const DebugStream &obj);
@@ -1032,43 +1023,15 @@ class DebugStream :
   inline DebugStream &operator<<(void(*)(debug_error_t))       {(*this).NoSpace()<<normal_fg<<blue_bg; return (*this).Space();}
   inline DebugStream &operator<<(void(*)(debug_fatal_error_t)) {(*this).NoSpace()<<normal_fg<<red_bg; return (*this).Space();}
 
-  inline DebugStream &operator<<(const char *str)         {(*this).printf("%s",str);return MayBeSpace();}
-  inline DebugStream &operator<<(const std::string& str)  {(*this).printf("%s",str.c_str());return MayBeSpace();}
-  inline DebugStream &operator<<(bool t)                  {(*this).printf(t?"true":"false");return MayBeSpace();}
-  inline DebugStream &operator<<(char t)                  {(*this).printf("%c",t);return MayBeSpace();}
-  inline DebugStream &operator<<(signed short t)          {(*this).printf("%d",t);return MayBeSpace();}
-  inline DebugStream &operator<<(unsigned short t)        {(*this).printf("%d",t);return MayBeSpace();}
-  inline DebugStream &operator<<(signed int t)            {(*this).printf("%d",t);return MayBeSpace();}
-  inline DebugStream &operator<<(unsigned int t)          {(*this).printf("%d",t);return MayBeSpace();}
-  inline DebugStream &operator<<(signed long t)           {(*this).printf("%ld",t);return MayBeSpace();}
-  inline DebugStream &operator<<(unsigned long t)         {(*this).printf("%ld",t);return MayBeSpace();}
-  inline DebugStream &operator<<(signed long long t)      {(*this).printf("%ld",t);return MayBeSpace();}
-  inline DebugStream &operator<<(unsigned long long t)    {(*this).printf("%ld",t);return MayBeSpace();}
-  inline DebugStream &operator<<(float t)                 {(*this).printf("%f",t);return MayBeSpace();}
-  inline DebugStream &operator<<(double t)                {(*this).printf("%lf",t);return MayBeSpace();}
-  inline DebugStream &operator<<(const void * t)          {return *this;}
-  inline DebugStream &operator<<(std::nullptr_t)          {(*this).printf("(nullptr)");return *this;}
-  inline DebugStream &operator<<(const char16_t* t)       {(*this).printf("%s",t);return MayBeSpace();}
-  inline DebugStream &operator<<(char16_t t)              {(*this).printf("%c",t);return MayBeSpace();}
-  inline DebugStream &operator<<(char32_t t)              {(*this).printf("%c",t);return MayBeSpace();}
-
   //======================================
   template <typename T>
   DebugStream& operator<<(const T& value) {
-    #if PPRINT_EN
-    (*this).print(value);
+    pp.print(value);
     if(!pprint_stream.str().empty()) {
-      (*this).NoNewLine() << pprint_stream.str();
+      (*this).printf(pprint_stream.str().c_str());
+      (*this).MayBeSpace();
       pprint_stream.str("");
     }
-    #else
-    static_cast<std::stringstream&>(*this) << value;
-    if (!(*this).str().empty()) {
-      (*this) << (*this).str();
-      (*this).str("");
-    }
-    #endif
-
     return *this;
   }
   //======================================
@@ -1104,8 +1067,8 @@ class DebugStream :
   }
   //======================================
  private:
-  std::function<void(const char*,int)> fun;
-  int buf_len{256};
+  std::function<void(const std::string&)> fun;
+  int buf_len;
   std::unique_ptr<char[]> buffer;
   bool out_en{true};
   bool space{true};
@@ -1113,20 +1076,16 @@ class DebugStream :
   bool newline_{false}; // solve the bug that add newline still add space
   bool terminate{false}; // if true will terminate program if true Use for debug error info
   bool clear_color{false}; // if true will clear color when deconstruct object
-#if PPRINT_EN
- public:
+ private:
   std::stringstream pprint_stream;
-#endif
+  pprint::PrettyPrinter pp;
 };
 
-inline DebugStream::DebugStream
-(std::function<void(const char*,int)>  fun_ , int buf_len_ ) :
-#if PPRINT_EN
-pprint::PrettyPrinter(pprint_stream)  
-#endif
-{
-  fun=fun_;
-  buf_len=buf_len_;
+inline DebugStream::DebugStream(std::function<void(const std::string&)> fun_,
+                                int buf_len_)
+    : pp(pprint_stream) {
+  fun = fun_;
+  buf_len = buf_len_;
   buffer = std::unique_ptr<char[]>(new char[buf_len]);
 }
 
@@ -1182,15 +1141,17 @@ inline DebugStream &DebugStream::printf(const char *fmt, ...) {
   if (!this->out_en) {
     return *this;
   }
+
   va_list ap;
   va_start(ap, fmt);
-  vsprintf((char *) buffer.get() , fmt, ap);
+  std::vsprintf((char *) buffer.get() , fmt, ap);
+  int size = std::strlen(buffer.get());
   va_end(ap);
-  int i = strlen((const char *) buffer.get());
-  fun(buffer.get(), i);
+
+  fun(buffer.get());
 
   // solve the bug that add newline still add space
-  if(buffer.get()[i-1]==0X0A||buffer.get()[i-1]==0X0D) {
+  if(buffer.get()[size-1]==0X0A||buffer.get()[size-1]==0X0D) {
     newline_= true;
   }
 
