@@ -1120,11 +1120,13 @@ class DebugStream :
 };
 
 inline DebugStream::DebugStream
-(std::function<void(const char*,int)>  fun_ , int buf_len_ ) : fun(fun_) ,buf_len(buf_len_)
+(std::function<void(const char*,int)>  fun_ , int buf_len_ ) :
 #if PPRINT_EN
-, pprint::PrettyPrinter(pprint_stream)  
+pprint::PrettyPrinter(pprint_stream)  
 #endif
 {
+  fun=fun_;
+  buf_len=buf_len_;
   buffer = std::unique_ptr<char[]>(new char[buf_len]);
 }
 
