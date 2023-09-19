@@ -920,7 +920,7 @@ inline void DebugSendStringCallBack_Default_(std::string str) {
 
 // Set the endl compatible with std::endl;
 class DebugStreamEndl {};
-inline void endl(DebugStreamEndl){};
+inline void endl(DebugStreamEndl){}
 
 //--------------------------------------------------
 static const char* DEBUG_STREAM_COLOR_FG_NORMAL = "\x1B[0m";
@@ -994,44 +994,48 @@ class DebugStream {
 
   //=========================================
   // inline DebugStream &print()                                    {return *this;}
-  inline DebugStream &operator<<(const DebugStream& stream)      {newline=false;return MayBeSpace();}
-  inline DebugStream &operator<<(void(*)(DebugStreamEndl)) {(*this)<<"\n"; return *this;}
+  DebugStream &operator<<(void(*)(DebugStreamEndl)) {(*this)<<"\n"; return *this;}
 
-  inline DebugStream &operator<<(void(*)(normal_fg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_NORMAL; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(black_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_BLACK; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(red_fg_t))    {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_RED; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(green_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_GREEN; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(yellow_fg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_YELLOW; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(blue_fg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_BLUE; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(magenta_fg_t)){(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_MAGENTA; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(cyan_fg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_CYAN; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(white_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_WHITE; return (*this).Space();}
+  DebugStream &operator<<(void(*)(normal_fg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_NORMAL; return (*this).Space();}
+  DebugStream &operator<<(void(*)(black_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_BLACK; return (*this).Space();}
+  DebugStream &operator<<(void(*)(red_fg_t))    {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_RED; return (*this).Space();}
+  DebugStream &operator<<(void(*)(green_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_GREEN; return (*this).Space();}
+  DebugStream &operator<<(void(*)(yellow_fg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_YELLOW; return (*this).Space();}
+  DebugStream &operator<<(void(*)(blue_fg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_BLUE; return (*this).Space();}
+  DebugStream &operator<<(void(*)(magenta_fg_t)){(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_MAGENTA; return (*this).Space();}
+  DebugStream &operator<<(void(*)(cyan_fg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_CYAN; return (*this).Space();}
+  DebugStream &operator<<(void(*)(white_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_WHITE; return (*this).Space();}
 
-  inline DebugStream &operator<<(void(*)(normal_bg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_NORMAL; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(black_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_BLACK; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(red_bg_t))    {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_RED; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(green_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_GREEN; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(yellow_bg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_YELLOW; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(blue_bg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_BLUE; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(magenta_bg_t)){(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_MAGENTA; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(cyan_bg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_CYAN; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(white_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_WHITE; return (*this).Space();}
+  DebugStream &operator<<(void(*)(normal_bg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_NORMAL; return (*this).Space();}
+  DebugStream &operator<<(void(*)(black_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_BLACK; return (*this).Space();}
+  DebugStream &operator<<(void(*)(red_bg_t))    {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_RED; return (*this).Space();}
+  DebugStream &operator<<(void(*)(green_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_GREEN; return (*this).Space();}
+  DebugStream &operator<<(void(*)(yellow_bg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_YELLOW; return (*this).Space();}
+  DebugStream &operator<<(void(*)(blue_bg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_BLUE; return (*this).Space();}
+  DebugStream &operator<<(void(*)(magenta_bg_t)){(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_MAGENTA; return (*this).Space();}
+  DebugStream &operator<<(void(*)(cyan_bg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_CYAN; return (*this).Space();}
+  DebugStream &operator<<(void(*)(white_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_WHITE; return (*this).Space();}
 
-  inline DebugStream &operator<<(void(*)(debug_general_t))     {(*this).NoSpace()<<normal_fg<<normal_bg; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(debug_status_t))      {(*this).NoSpace()<<red_fg<<cyan_bg; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(debug_warning_t))     {(*this).NoSpace()<<green_fg<<yellow_bg; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(debug_error_t))       {(*this).NoSpace()<<normal_fg<<blue_bg; return (*this).Space();}
-  inline DebugStream &operator<<(void(*)(debug_fatal_error_t)) {(*this).NoSpace()<<normal_fg<<red_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(debug_general_t))     {(*this).NoSpace()<<normal_fg<<normal_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(debug_status_t))      {(*this).NoSpace()<<red_fg<<cyan_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(debug_warning_t))     {(*this).NoSpace()<<green_fg<<yellow_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(debug_error_t))       {(*this).NoSpace()<<normal_fg<<blue_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(debug_fatal_error_t)) {(*this).NoSpace()<<normal_fg<<red_bg; return (*this).Space();}
 
   //======================================
   template <typename T>
   DebugStream& operator<<(const T& value) {
     pp.print(value);
     if(!pprint_stream.str().empty()) {
-      (*this).printf(pprint_stream.str().c_str());
-      (*this).MayBeSpace();
+      // std::cout <<  pprint_stream.str();
+      printf(pprint_stream.str().c_str());
+      MayBeSpace();
       pprint_stream.str("");
     }
+    return *this;
+  }
+  DebugStream& operator<<(DebugStream& stream) {
+    stream.newline = false;
     return *this;
   }
   //======================================
@@ -1041,7 +1045,8 @@ class DebugStream {
      return *this;
   }
   inline DebugStream& operator()(const char* varName) {
-    (*this).printf(varName);
+    // (*this).printf(varName);
+    (*this) << varName;
     return *this;
   }
   template <typename T>
@@ -1049,19 +1054,24 @@ class DebugStream {
     (*this) << varName << "=" << value;
     return *this;
   }
-  // inline DebugStream& operator()(const char* varName, const char* value) {
-  //   (*this) << varName << "=" << value;
-  //   return *this;
-  // }
+  inline DebugStream& operator()(const char* varName, const char* value) {
+    (*this) << value;
+    return *this;
+  }
   template <typename... Args>
   inline DebugStream& operator()(const char* varName, const char* fmt, Args... args) {
     (*this).printf(fmt,args...);
+    MayBeSpace();
     return *this;
   }
   //======================================
  private:
   inline DebugStream &MayBeSpace() {
-    if (!newline_&&space) (*this)(" ");
+    if (!newline_&&space) {
+      // (*this)(" ");
+      printf(" ");
+      // pprint_stream<<" ";
+    } 
     newline_ = false;
     return *this;
   }
@@ -1219,7 +1229,7 @@ template <typename T,T value>
 __attribute__((deprecated))
 inline T PreventNULL(){return value;}
 
-};
+} // namespace gxt
 
 #define gDebugN(a,...) \
     [=](int max_print_cnt = -1,int cnt = 1) { \
@@ -1257,7 +1267,7 @@ namespace gxt{
 
 // 定义宏 TIME_END 来打印输出执行时间
 #define TIME_END(...) \
-    [&]()->std::string{ \
+    [& __start_time__##__VA_ARGS__ ]()->std::string{ \
       auto __end_time__##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
       auto __duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__##__VA_ARGS__ - __start_time__##__VA_ARGS__).count(); \
       std::string res; \
@@ -1337,6 +1347,9 @@ inline long GetTimeNs() {
 }
 
 }
+
+
+
 
 
 #endif //DEBUGSTREAM_H__
