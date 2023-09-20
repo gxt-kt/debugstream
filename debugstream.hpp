@@ -4,8 +4,8 @@
  * @brief  If you have use the qDebug() function of "Qt" before, you must use this module easily.
  * And the qDebug is change name to gDebug here. The detail see the "@attention".
  * The github address is https://github.com/gxt-kt/debugstream
- * @version 1.0.0
- * @date 2023-09-07
+ * @version 1.1.0
+ * @date 2023-09-020
  *
  * @copyright Copyright (c) 2022
  *
