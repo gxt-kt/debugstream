@@ -919,10 +919,13 @@ inline void DebugSendStringCallBack_Default_(std::string str) {
 }
 
 // Set the endl compatible with std::endl;
+namespace detail{
 class DebugStreamEndl {};
-inline void endl(DebugStreamEndl){}
+}
+inline void endl(detail::DebugStreamEndl){}
 
 //--------------------------------------------------
+namespace detail{
 static const char* DEBUG_STREAM_COLOR_FG_NORMAL = "\x1B[0m";
 static const char* DEBUG_STREAM_COLOR_FG_BLACK  = "\x1B[30m";
 static const char* DEBUG_STREAM_COLOR_FG_RED    = "\x1B[31m";
@@ -942,33 +945,61 @@ static const char* DEBUG_STREAM_COLOR_BG_BLUE   = "\x1B[44m";
 static const char* DEBUG_STREAM_COLOR_BG_MAGENTA= "\x1B[45m";
 static const char* DEBUG_STREAM_COLOR_BG_CYAN   = "\x1B[46m";
 static const char* DEBUG_STREAM_COLOR_BG_WHITE  = "\x1B[47m";
+}
 //--------------------------------------------------
-class normal_fg_t {}; inline void normal_fg (normal_fg_t ) {}
-class black_fg_t  {}; inline void black_fg  (black_fg_t  ) {}
-class red_fg_t    {}; inline void red_fg    (red_fg_t    ) {}
-class green_fg_t  {}; inline void green_fg  (green_fg_t  ) {}
-class yellow_fg_t {}; inline void yellow_fg (yellow_fg_t ) {}
-class blue_fg_t   {}; inline void blue_fg   (blue_fg_t   ) {}
-class magenta_fg_t{}; inline void magenta_fg(magenta_fg_t) {}
-class cyan_fg_t   {}; inline void cyan_fg   (cyan_fg_t   ) {}
-class white_fg_t  {}; inline void white_fg  (white_fg_t  ) {}
+namespace detail{
+class normal_fg_t {}; 
+class black_fg_t  {}; 
+class red_fg_t    {}; 
+class green_fg_t  {}; 
+class yellow_fg_t {}; 
+class blue_fg_t   {}; 
+class magenta_fg_t{}; 
+class cyan_fg_t   {}; 
+class white_fg_t  {}; 
 //--------------------------------------------------
-class normal_bg_t {}; inline void normal_bg (normal_bg_t ) {}
-class black_bg_t  {}; inline void black_bg  (black_bg_t  ) {}
-class red_bg_t    {}; inline void red_bg    (red_bg_t    ) {}
-class green_bg_t  {}; inline void green_bg  (green_bg_t  ) {}
-class yellow_bg_t {}; inline void yellow_bg (yellow_bg_t ) {}
-class blue_bg_t   {}; inline void blue_bg   (blue_bg_t   ) {}
-class magenta_bg_t{}; inline void magenta_bg(magenta_bg_t) {}
-class cyan_bg_t   {}; inline void cyan_bg   (cyan_bg_t   ) {}
-class white_bg_t  {}; inline void white_bg  (white_bg_t  ) {}
+class normal_bg_t {}; 
+class black_bg_t  {}; 
+class red_bg_t    {}; 
+class green_bg_t  {}; 
+class yellow_bg_t {}; 
+class blue_bg_t   {}; 
+class magenta_bg_t{}; 
+class cyan_bg_t   {}; 
+class white_bg_t  {}; 
+//--------------------------------------------------
+class debug_general_t     {};
+class debug_status_t      {};
+class debug_warning_t     {};
+class debug_error_t       {};
+class debug_fatal_error_t {};
+}
+inline void normal_fg (detail::normal_fg_t ) {}
+inline void black_fg  (detail::black_fg_t  ) {}
+inline void red_fg    (detail::red_fg_t    ) {}
+inline void green_fg  (detail::green_fg_t  ) {}
+inline void yellow_fg (detail::yellow_fg_t ) {}
+inline void blue_fg   (detail::blue_fg_t   ) {}
+inline void magenta_fg(detail::magenta_fg_t) {}
+inline void cyan_fg   (detail::cyan_fg_t   ) {}
+inline void white_fg  (detail::white_fg_t  ) {}
+//---------------------detail::-----------------------------
+inline void normal_bg (detail::normal_bg_t ) {}
+inline void black_bg  (detail::black_bg_t  ) {}
+inline void red_bg    (detail::red_bg_t    ) {}
+inline void green_bg  (detail::green_bg_t  ) {}
+inline void yellow_bg (detail::yellow_bg_t ) {}
+inline void blue_bg   (detail::blue_bg_t   ) {}
+inline void magenta_bg(detail::magenta_bg_t) {}
+inline void cyan_bg   (detail::cyan_bg_t   ) {}
+inline void white_bg  (detail::white_bg_t  ) {}
 
 // set the debug color
-class debug_general_t     {}; inline void GENERAL     (debug_general_t)     {}
-class debug_status_t      {}; inline void STATUS      (debug_status_t)      {}
-class debug_warning_t     {}; inline void WARNING     (debug_warning_t)     {}
-class debug_error_t       {}; inline void ERROR       (debug_error_t)       {}
-class debug_fatal_error_t {}; inline void FATAL_ERROR (debug_fatal_error_t) {}
+inline void GENERAL     (detail::debug_general_t)     {}
+inline void STATUS      (detail::debug_status_t)      {}
+inline void WARNING     (detail::debug_warning_t)     {}
+inline void ERROR       (detail::debug_error_t)       {}
+inline void FATAL_ERROR (detail::debug_fatal_error_t) {}
 
 
 class DebugStream {
@@ -994,33 +1025,33 @@ class DebugStream {
 
   //=========================================
   // inline DebugStream &print()                                    {return *this;}
-  DebugStream &operator<<(void(*)(DebugStreamEndl)) {(*this)<<"\n"; return *this;}
+  DebugStream &operator<<(void(*)(detail::DebugStreamEndl)) {(*this)<<"\n"; return *this;}
 
-  DebugStream &operator<<(void(*)(normal_fg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_NORMAL; return (*this).Space();}
-  DebugStream &operator<<(void(*)(black_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_BLACK; return (*this).Space();}
-  DebugStream &operator<<(void(*)(red_fg_t))    {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_RED; return (*this).Space();}
-  DebugStream &operator<<(void(*)(green_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_GREEN; return (*this).Space();}
-  DebugStream &operator<<(void(*)(yellow_fg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_YELLOW; return (*this).Space();}
-  DebugStream &operator<<(void(*)(blue_fg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_BLUE; return (*this).Space();}
-  DebugStream &operator<<(void(*)(magenta_fg_t)){(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_MAGENTA; return (*this).Space();}
-  DebugStream &operator<<(void(*)(cyan_fg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_CYAN; return (*this).Space();}
-  DebugStream &operator<<(void(*)(white_fg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_FG_WHITE; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::normal_fg_t)) {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_NORMAL; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::black_fg_t))  {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_BLACK; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::red_fg_t))    {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_RED; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::green_fg_t))  {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_GREEN; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::yellow_fg_t)) {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_YELLOW; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::blue_fg_t))   {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_BLUE; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::magenta_fg_t)){(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_MAGENTA; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::cyan_fg_t))   {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_CYAN; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::white_fg_t))  {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_FG_WHITE; return (*this).Space();}
 
-  DebugStream &operator<<(void(*)(normal_bg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_NORMAL; return (*this).Space();}
-  DebugStream &operator<<(void(*)(black_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_BLACK; return (*this).Space();}
-  DebugStream &operator<<(void(*)(red_bg_t))    {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_RED; return (*this).Space();}
-  DebugStream &operator<<(void(*)(green_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_GREEN; return (*this).Space();}
-  DebugStream &operator<<(void(*)(yellow_bg_t)) {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_YELLOW; return (*this).Space();}
-  DebugStream &operator<<(void(*)(blue_bg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_BLUE; return (*this).Space();}
-  DebugStream &operator<<(void(*)(magenta_bg_t)){(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_MAGENTA; return (*this).Space();}
-  DebugStream &operator<<(void(*)(cyan_bg_t))   {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_CYAN; return (*this).Space();}
-  DebugStream &operator<<(void(*)(white_bg_t))  {(*this).NoSpace()<<DEBUG_STREAM_COLOR_BG_WHITE; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::normal_bg_t)) {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_NORMAL; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::black_bg_t))  {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_BLACK; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::red_bg_t))    {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_RED; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::green_bg_t))  {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_GREEN; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::yellow_bg_t)) {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_YELLOW; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::blue_bg_t))   {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_BLUE; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::magenta_bg_t)){(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_MAGENTA; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::cyan_bg_t))   {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_CYAN; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::white_bg_t))  {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_WHITE; return (*this).Space();}
 
-  DebugStream &operator<<(void(*)(debug_general_t))     {(*this).NoSpace()<<normal_fg<<normal_bg; return (*this).Space();}
-  DebugStream &operator<<(void(*)(debug_status_t))      {(*this).NoSpace()<<red_fg<<cyan_bg; return (*this).Space();}
-  DebugStream &operator<<(void(*)(debug_warning_t))     {(*this).NoSpace()<<green_fg<<yellow_bg; return (*this).Space();}
-  DebugStream &operator<<(void(*)(debug_error_t))       {(*this).NoSpace()<<normal_fg<<blue_bg; return (*this).Space();}
-  DebugStream &operator<<(void(*)(debug_fatal_error_t)) {(*this).NoSpace()<<normal_fg<<red_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_general_t))     {(*this).NoSpace()<<normal_fg<<normal_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_status_t))      {(*this).NoSpace()<<red_fg<<cyan_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_warning_t))     {(*this).NoSpace()<<green_fg<<yellow_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_error_t))       {(*this).NoSpace()<<normal_fg<<blue_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_fatal_error_t)) {(*this).NoSpace()<<normal_fg<<red_bg; return (*this).Space();}
 
   //======================================
   template <typename T>
@@ -1145,7 +1176,7 @@ inline DebugStream::~DebugStream() {
 }
 
 inline DebugStream &DebugStream::printf(const char *fmt, ...) {
-#ifdef NO_DEBUG_OUTPUT //
+#ifdef NO_DEBUG_OUTPUT //                                         detail::
   return *this;
 #endif // NO_DEBUG_OUTPUT
   if (!this->out_en) {
@@ -1168,6 +1199,7 @@ inline DebugStream &DebugStream::printf(const char *fmt, ...) {
   return *this;
 }
 
+namespace detail{
 // FILE_LINE
 inline std::string FileLine(const std::string& file_name="",int line_num=-1) {
   std::string res;
@@ -1180,11 +1212,13 @@ inline std::string FileLine(const std::string& file_name="",int line_num=-1) {
   }
   return res;
 }
-#define G_FILE_LINE gxt::FileLine(__FILE__, __LINE__)
-#define G_FILE gxt::FileLine(__FILE__, -1)
-#define G_LINE gxt::FileLine("", __LINE__)
+}
+#define G_FILE_LINE gxt::detail::FileLine(__FILE__, __LINE__)
+#define G_FILE gxt::detail::FileLine(__FILE__, -1)
+#define G_LINE gxt::detail::FileLine("", __LINE__)
 
 
+namespace detail {
 // Type Name Implement
 template <typename T>
 inline std::string TypeImpl() {
@@ -1201,8 +1235,9 @@ inline std::string TypeImpl() {
 #endif
   return str.substr(posi_start,posi_end-posi_start);
 }
-#define TYPET(type) (gxt::TypeImpl<type>())
-#define TYPE(type) (gxt::TypeImpl<decltype(type)>())
+}
+#define TYPET(type) (gxt::detail::TypeImpl<type>())
+#define TYPE(type) (gxt::detail::TypeImpl<decltype(type)>())
 
 // Usage: gDebug() << VAR(a) // stdout: a = ${a}
 #define VAR(x) #x<<"="<<x 
@@ -1216,6 +1251,7 @@ inline std::string TypeImpl() {
 #define GET_ARG_5(arg, ...) GET_ARG_4(__VA_ARGS__) 
 
 
+namespace detail{
 // Get the number of input parameters
 template <typename ...T>
 __attribute__((deprecated))
@@ -1228,6 +1264,7 @@ inline T PreventNULL(const T& para){ return para;}
 template <typename T,T value>
 __attribute__((deprecated))
 inline T PreventNULL(){return value;}
+}
 
 } // namespace gxt
 
@@ -1349,8 +1386,95 @@ inline long GetTimeNs() {
 }
 
 
+// random number lib
+#include <cstdlib>
+#include <random>
+namespace gxt {
 
+// get random number method : pool scalability
+/* 
+template <typename T=int>
+inline typename std::enable_if<std::is_integral<T>::value == true, T>::type
+Random(T min = std::numeric_limits<T>::min(),
+       T max = std::numeric_limits<T>::max()) {
+  if (min > max) {
+    throw std::invalid_argument("Invalid range: min > max");
+  }
+  std::random_device rd;
+  std::mt19937 gen(0);
+  std::uniform_int_distribution<T> dist(min, max);
+  return dist(gen);
+}
 
+template <typename T>
+inline typename std::enable_if<std::is_floating_point<T>::value == true, T>::type
+Random(T min = std::numeric_limits<T>::min(),
+       T max = std::numeric_limits<T>::max()) {
+  if (min > max) {
+    throw std::invalid_argument("Invalid range: min > max");
+  }
+  std::random_device rd;
+  std::mt19937 gen(0);
+  std::uniform_real_distribution<T> dist(min, max);
+  return dist(gen);
+}
+*/
+
+namespace detail{
+template <typename T>
+struct RandomTypeTraits {
+  static T Min() { return std::numeric_limits<T>::min(); }
+  static T Max() { return std::numeric_limits<T>::max(); }
+
+  template <typename U>
+  typename std::enable_if<std::is_integral<U>::value == true, U>::type
+  GetValImpl_(U min, U max) {
+    std::uniform_int_distribution<U> dist(min, max);
+    return dist(gen_);
+  }
+  template <typename U>
+  typename std::enable_if<std::is_floating_point<U>::value == true, U>::type
+  GetValImpl_(U min, U max) {
+    std::uniform_real_distribution<U> dist(min, max);
+    return dist(gen_);
+  }
+
+  T GetVal(T min, T max) { return GetValImpl_<T>(min, max); }
+  RandomTypeTraits(std::mt19937& gen) : gen_(gen){};
+  std::mt19937& gen_;
+};
+
+template <>
+struct RandomTypeTraits<bool> {
+  static double Min() { return 0.0; }
+  static double Max() { return 1.0; }
+  using DistributionType = std::uniform_real_distribution<double>;
+  bool GetVal(bool min, bool max) {
+    DistributionType dist(Min(), Max());
+    return dist(gen_) > 0.5;
+  }
+  RandomTypeTraits(std::mt19937& gen) : gen_(gen){};
+  std::mt19937& gen_;
+};
+
+inline std::mt19937& GenerateRandomGen(
+    unsigned int value = std::numeric_limits<unsigned int>::max()) {
+  std::random_device rd;
+  static std::mt19937 gen(0);
+  return gen;
+}
+}
+
+template <typename T = int>
+inline T Random(T min = gxt::detail::RandomTypeTraits<T>::Min(),
+                T max = gxt::detail::RandomTypeTraits<T>::Max()) {
+  if (min > max) {
+    throw std::invalid_argument("Invalid range: min > max");
+  }
+  return gxt::detail::RandomTypeTraits<T>(gxt::detail::GenerateRandomGen()).GetVal(min, max);
+}
+
+}  // namespace gxt
 
 #endif //DEBUGSTREAM_H__
 
