@@ -5,7 +5,7 @@
  * And the qDebug is change name to gDebug here. The detail see the "@attention".
  * The github address is https://github.com/gxt-kt/debugstream
  * @version 1.1.0
- * @date 2023-09-020
+ * @date 2023-09-20
  *
  * @copyright Copyright (c) 2022
  *
