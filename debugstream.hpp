@@ -4,8 +4,8 @@
  * @brief  If you have use the qDebug() function of "Qt" before, you must use this module easily.
  * And the qDebug is change name to gDebug here. The detail see the "@attention".
  * The github address is https://github.com/gxt-kt/debugstream
- * @version 1.1.0
- * @date 2023-09-20
+ * @version 1.2.0
+ * @date 2023-09-24
  *
  * @copyright Copyright (c) 2022
  *
@@ -143,6 +143,7 @@ auto operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Args...> const& t)
 #endif
 
 
+#if SUPPORTS_CPP17
 namespace magic_enum {
 
   // Enum value must be in range [-MAGIC_ENUM_RANGE_MAX, MAGIC_ENUM_RANGE_MIN]. By default  MAGIC_ENUM_RANGE_MIN = -128, MAGIC_ENUM_RANGE_MAX = 128.
@@ -423,6 +424,7 @@ namespace magic_enum {
   } // namespace magic_enum::ops
 
 } // namespace magic_enum
+#endif // SUPPORTS_CPP17 
 
 namespace pprint {
 
@@ -617,11 +619,11 @@ namespace pprint {
       return demangle(typeid(t).name());
     }
 
-    // TODO : add new magic_enum impl function ( require : not need c++17 )
-    //
+    // NOTE : Print enum by reflaction only support cpp greater than 17
     template <typename T>
     typename std::enable_if<std::is_enum<T>::value == true, void>::type
     print_internal(T value, size_t indent = 0, const std::string& line_terminator = "\n", size_t level = 0) {
+      #if SUPPORTS_CPP17
       auto enum_string = magic_enum::enum_name(value);
       if (enum_string.has_value()) {
         stream_ << std::string(indent, ' ') << enum_string.value()
@@ -631,6 +633,11 @@ namespace pprint {
         stream_ << std::string(indent, ' ') << static_cast<std::underlying_type_t<T>>(value)
                 << line_terminator;
       }
+      #else
+      // #error\n\nPrint enum by reflaction only support cpp greater than 17 
+      std::cout << "\n\nPrint enum by reflaction only support cpp greater than 17\n\n";
+      // std::terminate();
+      #endif
     }
 
     template <typename T>
