@@ -1501,5 +1501,95 @@ inline std::string PadStringToDesignChars(const std::string& input, size_t n = 8
 }
 }
 
+namespace gxt{
+namespace algorithm{
+
+/*Print Tree
+  Example:
+  std::string res = PrintTree(
+      root, [](Node* node){ return node->left; },
+      [](Node* node){ return node->right; },
+      [](Node* node){ return node->value; });
+  gDebugCol1() << res;
+*/
+template <typename T, typename F_LEFT, typename F_RIGHT, typename F_VAL>
+inline std::string PrintTree(T* node, F_LEFT f_left, F_RIGHT f_right, F_VAL f_val,
+                      int level = 0, char branch = ' ') {
+  if (node == nullptr) return "";
+  std::string res;
+
+  res += PrintTree(f_right(node), f_left, f_right, f_val, level + 1, '/');
+  for (int i = 0; i < level; i++) {
+    res += "    ";
+  }
+  res += (branch + std::string("--") + std::to_string(node->key) + "\n");
+  res += PrintTree(f_left(node), f_left, f_right, f_val, level + 1, '\\');
+  return res;
+}
+
+template <typename T, typename F_LEFT, typename F_RIGHT, typename F_VAL>
+inline std::vector<std::vector<std::string>> CreateBinaryTreeStructure(T* root,
+                                                                F_LEFT f_left,
+                                                                F_RIGHT f_right,
+                                                                F_VAL f_val) {
+  std::vector<std::vector<std::string>> treeStructure;
+  if (root == nullptr) {
+    return treeStructure;
+  }
+
+  std::vector<T*> currentLevel;
+  std::vector<T*> nextLevel;
+  currentLevel.push_back(root);
+
+  while (!currentLevel.empty()) {
+    std::vector<std::string> levelValues;
+
+    bool null = true;
+    for (const auto& node : currentLevel) {
+      if (node != nullptr) {
+        null = false;
+        break;
+      }
+    }
+    if (null == true) break;
+
+    for (const auto& node : currentLevel) {
+      if (node == nullptr) {
+        levelValues.push_back("NULL");
+        nextLevel.push_back(nullptr);
+        nextLevel.push_back(nullptr);
+        continue;
+      }
+      levelValues.push_back(std::to_string(f_val(node)));
+      nextLevel.push_back(f_left(node));
+      nextLevel.push_back((node->right));
+    }
+    treeStructure.push_back(levelValues);
+    currentLevel = nextLevel;
+    nextLevel.clear();
+  }
+
+  return treeStructure;
+}
+
+/* Example: 
+ DrawTree(gxt::algorithm::CreateBinaryTreeStructure(root, [](Node* node){ return node->left; },
+      [](Node* node){ return node->right; },
+      [](Node* node){ return node->value; }));
+*/
+inline void DrawTree(const std::vector<std::vector<std::string>>& tree, size_t pad = 6,
+              size_t space = 2) {
+  for (int i = 0; i < tree.size(); i++) {
+    std::cout << std::string(pad * (tree.size() - i - 1), ' ');
+    for (const auto& val : tree.at(i)) {
+      std::cout << gxt::PadStringToDesignChars(val, pad)
+                << std::string(space, ' ');
+    }
+    std::cout << "\n";
+  }
+}
+}
+}
+
 #endif //DEBUGSTREAM_H__
 
