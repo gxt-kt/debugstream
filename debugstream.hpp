@@ -30,8 +30,8 @@
 
 // Reference : https://github.com/p-ranav/pprint
 
-// There will no debug stream output if define the NO_DEBUG_OUTPUT
-// #define NO_DEBUG_OUTPUT
+// There will no debug stream output if define the G_CONFIG_NO_DEBUG_OUTPUT
+// #define G_CONFIG_NO_DEBUG_OUTPUT
 
 
 #include <iostream>
@@ -1477,9 +1477,9 @@ inline DebugStream::~DebugStream() {
 }
 
 inline DebugStream &DebugStream::printf(const char *fmt, ...) {
-#ifdef NO_DEBUG_OUTPUT //                                         detail::
+#ifdef G_CONFIG_NO_DEBUG_OUTPUT //                                         detail::
   return *this;
-#endif // NO_DEBUG_OUTPUT
+#endif // G_CONFIG_NO_DEBUG_OUTPUT
   if (!this->out_en) {
     return *this;
   }
@@ -1598,24 +1598,111 @@ inline T PreventNULL(){return value;}
 
 // time lib
 namespace gxt{
+#if !defined(G_CONFIG_TIME_COLOR_NAME)
+#define G_CONFIG_TIME_COLOR_NAME gDebugCol3
+#endif
+#if !defined(G_CONFIG_TIME_COLOR_TIME)
+#define G_CONFIG_TIME_COLOR_TIME gDebugCol4
+#endif
+namespace detail {
 
-// 定义宏 TIME_BEGIN 来开始计时
+class TimeCount {
+  using time_type = std::chrono::high_resolution_clock::time_point;
+ public:
+  TimeCount(std::string str, time_type begin) {
+    name_ = str;
+    start_time_ = begin;
+  }
+  ~TimeCount() {
+    if (print_) {
+      auto end_time = std::chrono::high_resolution_clock::now();
+      auto duration_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-start_time_).count();
+      std::string name;
+      std::string time;
+      if (std::string(name_).empty()) name += std::string("Default");
+      else time += name_;
+      time += " Time: " + std::to_string(duration_time) + " ms";
+      G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time;
+    }
+  }
+  time_type GetStartTime() const{ return start_time_; };
+  void SetNotPrint() { print_=false; };
+ private:
+  std::string name_;
+  bool print_{true};
+  time_type start_time_;
+};
+
+template <class F>
+class WrapFunction{
+ public:
+  WrapFunction(std::string name, std::function<F> fun)
+      : name_(name), fun_(fun){};
+  template <class... Args>
+  auto operator()(Args&&... args) -> decltype(auto) {
+    using RetType = decltype(fun_(args...));
+    auto start_time = std::chrono::high_resolution_clock::now();
+    RetType ret = fun_(std::forward<Args>(args)...);
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                             end_time - start_time)
+                             .count();
+    std::string name;
+    std::string time;
+    name += std::string(name_);
+    time += " Time: " + std::to_string(duration_time) + " ms";
+    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time;
+    return ret;
+  }
+
+ private:
+  std::string name_;
+  std::function<F> fun_;
+};
+}
+
+
+// 定义宏 TIME_FUNCTION 来计算一个函数耗时
+// #define TIME_FUNCTION(...) \
+//   [&](){ \
+//     gxt::detail::WrapFunction<decltype(__VA_ARGS__)> fun(#__VA_ARGS__,__VA_ARGS__); \
+//     return fun; \
+//   }()
+
+// 定义宏 TIME_FUNCTION 来计算一个函数耗时
+#define TIME_FUNCTION(func) \
+ [&]()->decltype(func){ \
+    auto start = std::chrono::high_resolution_clock::now(); \
+    decltype(func) result = func; \
+    auto end = std::chrono::high_resolution_clock::now(); \
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(); \
+    std::string name; \
+    std::string time; \
+    name += std::string(#func); \
+    time += std::string(" Time: ") + std::to_string(duration) + " ms"; \
+    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time; \
+    return result; \
+}()
+
+// 定义宏 TIME_BEGIN 来开始计时(如果不执行TIME_END，就会在析构时自动输出时间)
 #define TIME_BEGIN(...) \
-    auto __start_time__##__VA_ARGS__ = std::chrono::high_resolution_clock::now();
+  std::unique_ptr<gxt::detail::TimeCount>  __time_count_##__VA_ARGS__= \
+  std::unique_ptr<gxt::detail::TimeCount>(new gxt::detail::TimeCount(#__VA_ARGS__,std::move(std::chrono::high_resolution_clock::now())));
 
 // 定义宏 TIME_END 来打印输出执行时间
 #define TIME_END(...) \
-    [& __start_time__##__VA_ARGS__ ]()->std::string{ \
-      auto __end_time__##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
-      auto __duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__##__VA_ARGS__ - __start_time__##__VA_ARGS__).count(); \
-      std::string res; \
-      if(std::string(#__VA_ARGS__).empty()) \
-      res = std::string("Default") + " Time: " + std::to_string(__duration_time__##__VA_ARGS__) + " ms"; \
-      else \
-      res = std::string(#__VA_ARGS__) + " Time: " + std::to_string(__duration_time__##__VA_ARGS__) + " ms"; \
-      gDebugCol1()<<res; \
-      return res; \
-    }()
+  [& __time_count_##__VA_ARGS__ ]()->std::string{ \
+    __time_count_##__VA_ARGS__->SetNotPrint(); \
+    auto __end_time__##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
+    auto __duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__##__VA_ARGS__ - __time_count_##__VA_ARGS__->GetStartTime()).count(); \
+    std::string name; \
+    std::string time; \
+    if(std::string(#__VA_ARGS__).empty()) name += std::string("Default"); \
+    else name += std::string(#__VA_ARGS__); \
+    time +=std::string(" Time: ") + std::to_string(__duration_time__##__VA_ARGS__) + " ms"; \
+    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time; \
+    return name+time; \
+  }()
 
 // 定义宏 TIME_CODE 来开始计算代码执行时间
 #define TIME_CODE(...) \
@@ -1624,13 +1711,16 @@ namespace gxt{
     __VA_ARGS__; \
     auto __end_time__code__ = std::chrono::high_resolution_clock::now(); \
     auto __duration_time__code__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__code__ - __start_time__code__).count(); \
-    std::string str; \
-    if(std::string(#__VA_ARGS__).empty()) str=""; \
+    std::string name; \
+    std::string time; \
+    if(std::string(#__VA_ARGS__).empty()) name=""; \
     else \
-    str = std::string(#__VA_ARGS__) + " Time: " + std::to_string(__duration_time__code__) + " ms"; \
-    gDebugCol1() << str; \
+    name = std::string(#__VA_ARGS__); \
+    time += std::string(" Time: ") + std::to_string(__duration_time__code__) + " ms"; \
+    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time; \
   }();
 
+// 定义宏 TIME_LOOP 来计算一个循环耗时
 #define TIME_LOOP(...) \
   []()->std::string{ \
     static auto __time_loop_begin_##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
@@ -1638,12 +1728,18 @@ namespace gxt{
     auto __time_loop_end_##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
     auto __loop_duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__time_loop_end_##__VA_ARGS__ - __time_loop_begin_##__VA_ARGS__).count(); \
     __time_loop_begin_##__VA_ARGS__=__time_loop_end_##__VA_ARGS__;\
-    std::string res; \
-    if(__time_loop_i__##__VA_ARGS__==0) res= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): " + std::to_string(__time_loop_i__##__VA_ARGS__) + " initialize"; \
-    else res= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): " + std::to_string(__time_loop_i__##__VA_ARGS__) + " Time: " + std::to_string(__loop_duration_time__##__VA_ARGS__) + " ms"; \
+    std::string name; \
+    std::string time; \
+    if(__time_loop_i__##__VA_ARGS__==0) { \
+      name= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): " + std::to_string(__time_loop_i__##__VA_ARGS__); \
+      time= std::string(" Time: ")  + "initialize"; \
+    } else { \
+      name= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): "+std::to_string(__time_loop_i__##__VA_ARGS__); \
+      time = std::string(" Time: ") + std::to_string(__loop_duration_time__##__VA_ARGS__) + " ms"; \
+    } \
     ++__time_loop_i__##__VA_ARGS__; \
-    gDebugCol1()<<res; \
-    return res;\
+    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time; \
+    return name+time; \
   }()
 
 inline void Sleep(std::int64_t time) {
@@ -1761,7 +1857,8 @@ struct RandomTypeTraits<bool> {
 inline std::mt19937& GenerateRandomGen(
     unsigned int value = std::numeric_limits<unsigned int>::max()) {
   std::random_device rd;
-  static std::mt19937 gen(0);
+  // static std::mt19937 gen(0);
+  static std::mt19937 gen(rd());
   return gen;
 }
 }
