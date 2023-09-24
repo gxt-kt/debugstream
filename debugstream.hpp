@@ -1633,41 +1633,8 @@ class TimeCount {
   time_type start_time_;
 };
 
-template <class F>
-class WrapFunction{
- public:
-  WrapFunction(std::string name, std::function<F> fun)
-      : name_(name), fun_(fun){};
-  template <class... Args>
-  auto operator()(Args&&... args) -> decltype(auto) {
-    using RetType = decltype(fun_(args...));
-    auto start_time = std::chrono::high_resolution_clock::now();
-    RetType ret = fun_(std::forward<Args>(args)...);
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto duration_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                             end_time - start_time)
-                             .count();
-    std::string name;
-    std::string time;
-    name += std::string(name_);
-    time += " Time: " + std::to_string(duration_time) + " ms";
-    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time;
-    return ret;
-  }
-
- private:
-  std::string name_;
-  std::function<F> fun_;
-};
 }
 
-
-// 定义宏 TIME_FUNCTION 来计算一个函数耗时
-// #define TIME_FUNCTION(...) \
-//   [&](){ \
-//     gxt::detail::WrapFunction<decltype(__VA_ARGS__)> fun(#__VA_ARGS__,__VA_ARGS__); \
-//     return fun; \
-//   }()
 
 // 定义宏 TIME_FUNCTION 来计算一个函数耗时
 #define TIME_FUNCTION(func) \
