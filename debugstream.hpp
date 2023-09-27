@@ -4,8 +4,8 @@
  * @brief  If you have use the qDebug() function of "Qt" before, you must use this module easily.
  * And the qDebug is change name to gDebug here. The detail see the "@attention".
  * The github address is https://github.com/gxt-kt/debugstream
- * @version 1.2.0
- * @date 2023-09-24
+ * @version 1.3.0
+ * @date 2023-09-28
  *
  * @copyright Copyright (c) 2022
  *
@@ -1591,6 +1591,51 @@ inline T PreventNULL(){return value;}
 #define gDebugCol3(...) gDebugCol(gxt::magenta_fg,gxt::normal_bg,##__VA_ARGS__)
 #define gDebugCol4(...) gDebugCol(gxt::cyan_fg,gxt::normal_bg,##__VA_ARGS__)
 #define gDebugCol5(...) gDebugCol(gxt::red_fg,gxt::normal_bg,##__VA_ARGS__)
+
+
+// Print split line such as "=============================="
+namespace detail {
+class SplitLine {
+ public:
+  std::string operator()(std::string str = std::string(1, default_char_),
+                         size_t size = size_) const {
+    return GetStringImpl_(str, size);
+  }
+  std::string operator()(char str = default_char_, size_t size = size_) const {
+    return GetStringImpl_(std::string(1, str), size);
+  }
+  std::string operator()(const char* str = &default_char_,
+                         size_t size = size_) const {
+    return GetStringImpl_(std::string(str), size);
+  }
+  template <typename T>
+  std::string operator()(T str, size_t size = size_) const {
+    return GetStringImpl_(std::to_string(str), size);
+  }
+  friend std::ostream& operator<<(std::ostream& os, const SplitLine& obj) {
+    std::string res;
+    res = obj.GetStringImpl_(std::string(1, obj.default_char_), size_);
+    os << res;
+    return os;
+  }
+
+ private:
+  std::string GetStringImpl_(std::string str, size_t size) const {
+    std::string res;
+    while (res.size() <= size) {
+      res += str;
+    }
+    return res;
+  }
+
+ private:
+  static const int size_ = 30;
+  static const char default_char_ = '=';
+};
+
+}  // namespace detail
+
+#define G_SPLIT_LINE detail::SplitLine()
 
 
 #include <chrono>
