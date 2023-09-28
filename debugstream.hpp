@@ -1477,7 +1477,7 @@ inline DebugStream::~DebugStream() {
 }
 
 inline DebugStream &DebugStream::printf(const char *fmt, ...) {
-#ifdef G_CONFIG_NO_DEBUG_OUTPUT //                                         detail::
+#ifdef G_CONFIG_NO_DEBUG_OUTPUT
   return *this;
 #endif // G_CONFIG_NO_DEBUG_OUTPUT
   if (!this->out_en) {
