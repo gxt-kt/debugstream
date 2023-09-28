@@ -1703,18 +1703,7 @@ class TimeCount {
 
 // 定义宏 TIME_END 来打印输出执行时间
 #define TIME_END(...) \
-  [& __time_count_##__VA_ARGS__ ]()->std::string{ \
-    __time_count_##__VA_ARGS__->SetNotPrint(); \
-    auto __end_time__##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
-    auto __duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__##__VA_ARGS__ - __time_count_##__VA_ARGS__->GetStartTime()).count(); \
-    std::string name; \
-    std::string time; \
-    if(std::string(#__VA_ARGS__).empty()) name += std::string("Default"); \
-    else name += std::string(#__VA_ARGS__); \
-    time +=std::string(" Time: ") + std::to_string(__duration_time__##__VA_ARGS__) + " ms"; \
-    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time; \
-    return name+time; \
-  }()
+  __time_count_##__VA_ARGS__.reset();
 
 // 定义宏 TIME_CODE 来开始计算代码执行时间
 #define TIME_CODE(...) \
