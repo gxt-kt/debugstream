@@ -1598,18 +1598,18 @@ namespace detail {
 class SplitLine {
  public:
   std::string operator()(std::string str = std::string(1, default_char_),
-                         size_t size = size_) const {
+                         int size = -1) const {
     return GetStringImpl_(str, size);
   }
-  std::string operator()(char str = default_char_, size_t size = size_) const {
+  std::string operator()(char str = default_char_, int size = -1) const {
     return GetStringImpl_(std::string(1, str), size);
   }
   std::string operator()(const char* str = &default_char_,
-                         size_t size = size_) const {
+                         int size = -1) const {
     return GetStringImpl_(std::string(str), size);
   }
   template <typename T>
-  std::string operator()(T str, size_t size = size_) const {
+  std::string operator()(T str, int size = -1) const {
     return GetStringImpl_(std::to_string(str), size);
   }
   friend std::ostream& operator<<(std::ostream& os, const SplitLine& obj) {
@@ -1620,9 +1620,14 @@ class SplitLine {
   }
 
  private:
-  std::string GetStringImpl_(std::string str, size_t size) const {
+  std::string GetStringImpl_(std::string str, int n) const {
     std::string res;
-    while (res.size() <= size) {
+    size_t size;
+    if (n < 0) size = size_;
+    else size = n * str.size();
+
+    res.reserve(size);
+    while (res.size() < size) {
       res += str;
     }
     return res;
