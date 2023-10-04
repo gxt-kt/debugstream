@@ -1862,20 +1862,25 @@ struct RandomTypeTraits<bool> {
 
 inline std::mt19937& GenerateRandomGen(
     unsigned int value = std::numeric_limits<unsigned int>::max()) {
-  std::random_device rd;
+  static std::random_device rd;
   // static std::mt19937 gen(0);
   static std::mt19937 gen(rd());
   return gen;
 }
 }
 
-template <typename T = int>
+template <typename T = int, int rd_val = -1>
 inline T Random(T min = gxt::detail::RandomTypeTraits<T>::Min(),
                 T max = gxt::detail::RandomTypeTraits<T>::Max()) {
   if (min > max) {
     throw std::invalid_argument("Invalid range: min > max");
   }
-  return gxt::detail::RandomTypeTraits<T>(gxt::detail::GenerateRandomGen()).GetVal(min, max);
+  if (rd_val==-1) {
+    return gxt::detail::RandomTypeTraits<T>(gxt::detail::GenerateRandomGen()).GetVal(min, max);
+  } else {
+    static std::mt19937 gen(rd_val);
+    return gxt::detail::RandomTypeTraits<T>(gen).GetVal(min, max);
+  }
 }
 
 }  // namespace gxt
