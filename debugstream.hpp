@@ -201,7 +201,7 @@ inline std::string GetEnumName(T n) {
   gxt::detail::TemplateForLoop<min, max>(
       gxt::detail::GetEnumClass<T>(static_cast<int>(n), str));
   if (str.empty()) {
-    // gDebugWarn("\n\nenum out of range\n");
+    throw std::runtime_error("\nenum out of range\n");
   }
   return str;
 }
@@ -225,7 +225,7 @@ inline int GetNameEnum(std::string name) {
       return i;
     }
   }
-  // gDebugWarn("\n\nenum out of range\n");
+  throw std::runtime_error("\nenum out of range\n");
   return 0;
 }
 
