@@ -1532,7 +1532,7 @@ inline std::string TypeImpl() {
   std::string str=__PRETTY_FUNCTION__;
   auto posi_start = str.find("T = ");
   posi_start += 4;
-  auto posi_end=str.find_first_of(";]",posi_start);
+  auto posi_end=str.find_first_of(";",posi_start);
 #endif
   return str.substr(posi_start,posi_end-posi_start);
 }
