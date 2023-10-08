@@ -194,12 +194,12 @@ struct GetEnumClass {
 
 } // detail for enum imp
 
-
 template <typename T, int min = G_CONFIG_ENUM_RANGE_MIN,
           int max = G_CONFIG_ENUM_RANGE_MAX>
 inline std::string GetEnumName(T n) {
   std::string str;
-  gxt::detail::TemplateForLoop<min, max>(gxt::detail::GetEnumClass<T>(n, str));
+  gxt::detail::TemplateForLoop<min, max>(
+      gxt::detail::GetEnumClass<T>(static_cast<int>(n), str));
   if (str.empty()) {
     // gDebugWarn("\n\nenum out of range\n");
   }
@@ -211,8 +211,16 @@ template <typename T, int min = G_CONFIG_ENUM_RANGE_MIN,
 inline int GetNameEnum(std::string name) {
   std::string str;
   for (int i = G_CONFIG_ENUM_RANGE_MIN; i <= G_CONFIG_ENUM_RANGE_MAX; i++) {
-    gxt::detail::TemplateForLoop<G_CONFIG_ENUM_RANGE_MIN, G_CONFIG_ENUM_RANGE_MAX>(
-        gxt::detail::GetEnumClass<T>(i, str));
+    gxt::detail::TemplateForLoop<G_CONFIG_ENUM_RANGE_MIN,
+                                 G_CONFIG_ENUM_RANGE_MAX>(
+        gxt::detail::GetEnumClass<T>(static_cast<int>(i), str));
+    if (!str.empty()) {  // solve bug that use class enum
+      auto find = str.find("::");
+      if (find != std::string::npos) {
+        find += 2;
+        str = std::string(str, find);
+      }
+    }
     if (!str.empty() && str == name) {
       return i;
     }
