@@ -1443,6 +1443,7 @@ template <class T, class D = typename std::enable_if<std::is_class<T>::value, T>
 
   std::stringstream str;
   str << std::boolalpha;
+  str << "\n";
 
 #define CLASS_DETAIL_SPLIT(str_) str << G_SPLIT_LINE(str_, 44) << "\n";
 
