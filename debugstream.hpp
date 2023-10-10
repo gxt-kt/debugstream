@@ -79,9 +79,13 @@ namespace gxt {
 template<typename S, typename T, typename = void>
 struct is_to_stream_writable: std::false_type {};
 
+// gxt: solve compile bug for clangd or msvc caused by c++ version lower than 17
+template <typename...>
+using void_t = void;
+
 template<typename S, typename T>
 struct is_to_stream_writable<S, T,
-           std::void_t<  decltype( std::declval<S&>()<<std::declval<T>() ) >>
+           gxt::void_t<  decltype( std::declval<S&>()<<std::declval<T>() ) >>
   : std::true_type {};
 
 
@@ -1506,10 +1510,12 @@ template <class T, class D = typename std::enable_if<std::is_class<T>::value, T>
   CLASS_DETAIL_VAR(has_virtual_destructor);
 
   CLASS_DETAIL_SPLIT("-")
+  #if SUPPORTS_CPP17
   // CLASS_DETAIL_VAR(is_swappable_with);
   CLASS_DETAIL_VAR(is_swappable);
   // CLASS_DETAIL_VAR(is_nothrow_swappable_with);
   CLASS_DETAIL_VAR(is_nothrow_swappable);
+  #endif
 
   CLASS_DETAIL_SPLIT("=")
   CLASS_DETAIL_SPLIT("<")
