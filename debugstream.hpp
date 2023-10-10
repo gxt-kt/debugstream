@@ -184,8 +184,8 @@ typename std::enable_if<begin != end>::type TemplateForLoop(const F &fun) {
 
 template <typename T>
 struct GetEnumClass {
-  std::string &str_;
   int n_;
+  std::string &str_;
   GetEnumClass(int n, std::string &str) : n_(n), str_(str) {}
 
   template <int N>
@@ -1509,8 +1509,8 @@ template <class T, class D = typename std::enable_if<std::is_class<T>::value, T>
 
   CLASS_DETAIL_VAR(has_virtual_destructor);
 
-  CLASS_DETAIL_SPLIT("-")
   #if SUPPORTS_CPP17
+  // CLASS_DETAIL_SPLIT("-")
   // CLASS_DETAIL_VAR(is_swappable_with);
   CLASS_DETAIL_VAR(is_swappable);
   // CLASS_DETAIL_VAR(is_nothrow_swappable_with);
@@ -1592,7 +1592,7 @@ class TimeCount {
 // 定义宏 TIME_BEGIN 来开始计时(如果不执行TIME_END，就会在析构时自动输出时间)
 #define TIME_BEGIN(...) \
   std::unique_ptr<gxt::detail::TimeCount>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount>(new gxt::detail::TimeCount(#__VA_ARGS__,std::move(std::chrono::high_resolution_clock::now())));
+  std::unique_ptr<gxt::detail::TimeCount>(new gxt::detail::TimeCount(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
 
 // 定义宏 TIME_END 来打印输出执行时间
 #define TIME_END(...) \
@@ -1876,7 +1876,7 @@ inline std::vector<std::vector<std::string>> CreateBinaryTreeStructure(T* root,
 */
 inline void DrawTree(const std::vector<std::vector<std::string>>& tree, size_t pad = 6,
               size_t space = 2) {
-  for (int i = 0; i < tree.size(); i++) {
+  for (size_t i = 0; i < tree.size(); i++) {
     std::cout << std::string(pad * (tree.size() - i - 1), ' ');
     for (const auto& val : tree.at(i)) {
       std::cout << gxt::PadStringToDesignChars(val, pad)
