@@ -1150,6 +1150,7 @@ class DebugStream {
   DebugStream &operator<<(void(*)(detail::debug_fatal_error_t)) {(*this).NoSpace()<<normal_fg<<red_bg; return (*this).Space();}
 
   //======================================
+  #if 1
   template <typename T>
   DebugStream& operator<<(const T& value) {
     pp.print(value);
@@ -1165,6 +1166,23 @@ class DebugStream {
     stream.newline = false;
     return *this;
   }
+  #else
+  template <typename T,typename D=typename std::enable_if<!std::is_same<std::decay<DebugStream>,std::decay<T>>::value,T>::type>
+  DebugStream& operator<<(T&& value) {
+    pp.print(value);
+    if(!pprint_stream.str().empty()) {
+      // std::cout <<  pprint_stream.str();
+      printf(pprint_stream.str().c_str());
+      MayBeSpace();
+      pprint_stream.str("");
+    }
+    return *this;
+  }
+  DebugStream& operator<<(DebugStream& stream) {
+    stream.newline = false;
+    return *this;
+  }
+  #endif
   //======================================
  public:
   DebugStream &printf(const char *fmt, ...);
