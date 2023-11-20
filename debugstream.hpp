@@ -1439,20 +1439,13 @@ namespace gxt {
 namespace detail {
 class SplitLine {
  public:
-  std::string operator()(std::string str = std::string(1, default_char_),
-                         int size = -1) const {
-    return GetStringImpl_(str, size);
-  }
-  std::string operator()(char str = default_char_, int size = -1) const {
-    return GetStringImpl_(std::string(1, str), size);
-  }
-  std::string operator()(const char* str = &default_char_,
-                         int size = -1) const {
-    return GetStringImpl_(std::string(str), size);
-  }
-  template <typename T>
-  std::string operator()(T str, int size = -1) const {
-    return GetStringImpl_(std::to_string(str), size);
+  std::string operator()(std::string str="", int size = size_,char c=default_char_) const {
+    size_t len=str.size();
+    if(len>size) return "";
+    size_t left_len=(size-len)/2;
+    std::string ret;
+    ret=std::string(left_len,c)+str+std::string((size-left_len-len),c);
+    return ret;
   }
   friend std::ostream& operator<<(std::ostream& os, const SplitLine& obj) {
     std::string res;
@@ -1460,21 +1453,6 @@ class SplitLine {
     os << res;
     return os;
   }
-
- private:
-  std::string GetStringImpl_(std::string str, int n) const {
-    std::string res;
-    size_t size;
-    if (n < 0) size = size_;
-    else size = n * str.size();
-
-    res.reserve(size);
-    while (res.size() < size) {
-      res += str;
-    }
-    return res;
-  }
-
  private:
   static const int size_ = 30;
   static const char default_char_ = '=';
