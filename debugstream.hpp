@@ -1449,7 +1449,7 @@ class SplitLine {
   }
   friend std::ostream& operator<<(std::ostream& os, const SplitLine& obj) {
     std::string res;
-    res = obj.GetStringImpl_(std::string(1, obj.default_char_), size_);
+    res = obj.operator()();
     os << res;
     return os;
   }
