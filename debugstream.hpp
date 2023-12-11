@@ -1439,7 +1439,7 @@ namespace gxt {
 namespace detail {
 class SplitLine {
  public:
-  std::string operator()(std::string str="", int size = size_,char c=default_char_) const {
+  std::string operator()(std::string str="", size_t size = size_,char c=default_char_) const {
     size_t len=str.size();
     if(len>size) return "";
     size_t left_len=(size-len)/2;
