@@ -1460,6 +1460,60 @@ class SplitLine {
 }  // namespace detail
 }  // namespace gxt
 
+// Print Restricted Cnt
+namespace gxt {
+namespace detail {
+class PrintCnt {
+ public:
+  /*
+   * max_print_cnt : 最大打印次数
+   * print_interval : 每print_interval次打印一次
+   * terminate : 达到最大打印次数是否终止程序（方便调试）
+   */
+  PrintCnt& operator()(int max_print_cnt = -1, size_t print_interval = 1,
+                       bool terminate = false) {
+    max_print_cnt_ = max_print_cnt;
+    print_interval_ = print_interval;
+    terminate_ = terminate;
+    if (!exec_once) {
+      exec_once = true;
+      cnt_interval = print_interval_;
+    }
+    return *this;
+  }
+  friend gxt::DebugStream& operator<<(gxt::DebugStream& os, PrintCnt& obj) {
+    if (obj.max_print_cnt_ >= 0 && obj.cnt >= obj.max_print_cnt_) {
+      if (obj.terminate_) os.Terminate();
+      os.OutEn(false);
+      return os;
+    }
+    if (obj.cnt_interval++ >= obj.print_interval_) {
+      os.OutEn(true);
+      ++(obj.cnt);
+      if (obj.max_print_cnt_ >= 0 && obj.cnt >= obj.max_print_cnt_) {
+        if (obj.terminate_) os.Terminate();
+      }
+      obj.cnt_interval = 1;
+    } else {
+      os.OutEn(false);
+    };
+    return os;
+  }
+
+ private:
+  bool exec_once = false;
+  int cnt = 0;
+  size_t cnt_interval = 1;
+  int max_print_cnt_ = -1;
+  size_t print_interval_ = 1;
+  bool terminate_ = false;
+};
+}  // namespace detail
+}  // namespace gxt
+
+#define G_PRINT_CNT []()->gxt::detail::PrintCnt& \
+  {static gxt::detail::PrintCnt print_cnt; return print_cnt;}()
+
 #define G_SPLIT_LINE gxt::detail::SplitLine()
 
 namespace gxt {
