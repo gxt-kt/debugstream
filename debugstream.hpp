@@ -379,6 +379,11 @@ namespace pprint {
         stream_ << std::string(indent, ' ') << "'" << value << "'" << line_terminator;
     }
 
+    // gxt: support gDebug() << std::hex << 10;
+    void print_internal(std::ios_base& (*value)(std::ios_base&), size_t indent = 0, const std::string& line_terminator = "\n", size_t level = 0) {
+      stream_ << std::string(indent, ' ') << value << line_terminator;
+    }
+
     void print_internal_without_quotes(const std::string& value, size_t indent = 0,
       const std::string& line_terminator = "\n", size_t level = 0) {
       stream_ << std::string(indent, ' ') << value << line_terminator;
