@@ -1902,7 +1902,7 @@ inline std::string PrintTree(T* node, F_LEFT f_left, F_RIGHT f_right, F_VAL f_va
   for (int i = 0; i < level; i++) {
     res += "    ";
   }
-  res += (branch + std::string("--") + std::to_string(node->key) + "\n");
+  res += (branch + std::string("--") + std::to_string(f_val(node)) + "\n");
   res += PrintTree(f_left(node), f_left, f_right, f_val, level + 1, '\\');
   return res;
 }
