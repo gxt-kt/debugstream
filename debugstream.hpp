@@ -1636,6 +1636,26 @@ namespace gxt{
 #endif
 namespace detail {
 
+// 默认模板参数为 std::chrono::milliseconds
+template <typename T = std::chrono::milliseconds>
+struct TimeUnitString {
+  static std::string GetUnitString() { return "ms"; }
+};
+// 针对 std::chrono::microseconds 的模板特化
+template <>
+struct TimeUnitString<std::chrono::microseconds> {
+  static std::string GetUnitString() { return "us"; }
+};
+template <>
+struct TimeUnitString<std::chrono::nanoseconds> {
+  static std::string GetUnitString() { return "ns"; }
+};
+template <>
+struct TimeUnitString<std::chrono::seconds> {
+  static std::string GetUnitString() { return "s"; }
+};
+
+template <typename T=std::chrono::milliseconds>
 class TimeCount {
   using time_type = std::chrono::high_resolution_clock::time_point;
  public:
@@ -1646,12 +1666,13 @@ class TimeCount {
   ~TimeCount() {
     if (print_) {
       auto end_time = std::chrono::high_resolution_clock::now();
-      auto duration_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time-start_time_).count();
+      auto duration_time = std::chrono::duration_cast<T>(end_time - start_time_).count();
       std::string name;
       std::string time;
       if (std::string(name_).empty()) name += std::string("Default");
       else time += name_;
-      time += " Time: " + std::to_string(duration_time) + " ms";
+      time += " Time: " + std::to_string(duration_time) + " ";
+      time += TimeUnitString<T>::GetUnitString();
       G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time;
     }
   }
@@ -1683,8 +1704,20 @@ class TimeCount {
 
 // 定义宏 TIME_BEGIN 来开始计时(如果不执行TIME_END，就会在析构时自动输出时间)
 #define TIME_BEGIN(...) \
-  std::unique_ptr<gxt::detail::TimeCount>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount>(new gxt::detail::TimeCount(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>  __time_count_##__VA_ARGS__= \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>(new gxt::detail::TimeCount<std::chrono::milliseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+#define TIME_BEGIN_MS(...) \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>  __time_count_##__VA_ARGS__= \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>(new gxt::detail::TimeCount<std::chrono::milliseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+#define TIME_BEGIN_US(...) \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::microseconds>>  __time_count_##__VA_ARGS__= \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::microseconds>>(new gxt::detail::TimeCount<std::chrono::microseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+#define TIME_BEGIN_NS(...) \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::nanoseconds>>  __time_count_##__VA_ARGS__= \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::nanoseconds>>(new gxt::detail::TimeCount<std::chrono::nanoseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+#define TIME_BEGIN_S(...) \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::seconds>>  __time_count_##__VA_ARGS__= \
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::seconds>>(new gxt::detail::TimeCount<std::chrono::seconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
 
 // 定义宏 TIME_END 来打印输出执行时间
 #define TIME_END(...) \
