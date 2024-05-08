@@ -1427,25 +1427,25 @@ inline T PreventNULL(){return value;}
       } \
     }(__VA_ARGS__)
 
-// #define gDebugCol(col_fg,col_bg,...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-// #define gDebug(...) gDebugCol(gxt::normal_fg,gxt::normal_bg,##__VA_ARGS__)
-// #define gDebugWarn(...) gDebugCol(gxt::black_fg,gxt::yellow_bg,##__VA_ARGS__)
-// #define gDebugError(...) gDebugCol(gxt::white_fg,gxt::red_bg,##__VA_ARGS__).Terminate()
-// #define gDebugCol1(...) gDebugCol(gxt::green_fg,gxt::normal_bg,##__VA_ARGS__)
-// #define gDebugCol2(...) gDebugCol(gxt::blue_fg,gxt::normal_bg,##__VA_ARGS__)
-// #define gDebugCol3(...) gDebugCol(gxt::magenta_fg,gxt::normal_bg,##__VA_ARGS__)
-// #define gDebugCol4(...) gDebugCol(gxt::cyan_fg,gxt::normal_bg,##__VA_ARGS__)
-// #define gDebugCol5(...) gDebugCol(gxt::red_fg,gxt::normal_bg,##__VA_ARGS__)
+#define gDebugCol(col_fg,col_bg,...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebug(...) gDebugCol(gxt::normal_fg,gxt::normal_bg,##__VA_ARGS__)
+#define gDebugWarn(...) gDebugCol(gxt::black_fg,gxt::yellow_bg,##__VA_ARGS__)
+#define gDebugError(...) gDebugCol(gxt::white_fg,gxt::red_bg,##__VA_ARGS__).Terminate()
+#define gDebugCol1(...) gDebugCol(gxt::green_fg,gxt::normal_bg,##__VA_ARGS__)
+#define gDebugCol2(...) gDebugCol(gxt::blue_fg,gxt::normal_bg,##__VA_ARGS__)
+#define gDebugCol3(...) gDebugCol(gxt::magenta_fg,gxt::normal_bg,##__VA_ARGS__)
+#define gDebugCol4(...) gDebugCol(gxt::cyan_fg,gxt::normal_bg,##__VA_ARGS__)
+#define gDebugCol5(...) gDebugCol(gxt::red_fg,gxt::normal_bg,##__VA_ARGS__)
 
-#define gDebugCol(col_fg,col_bg) (gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<col_fg<<col_bg)
-#define gDebug(...) (gDebugCol(gxt::normal_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
-#define gDebugWarn(...) (gDebugCol(gxt::black_fg,gxt::yellow_bg) << VAR(__VA_ARGS__))
-#define gDebugError(...) (gDebugCol(gxt::white_fg,gxt::red_bg).Terminate() << VAR(__VA_ARGS__))
-#define gDebugCol1(...) (gDebugCol(gxt::green_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
-#define gDebugCol2(...) (gDebugCol(gxt::blue_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
-#define gDebugCol3(...) (gDebugCol(gxt::magenta_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
-#define gDebugCol4(...) (gDebugCol(gxt::cyan_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
-#define gDebugCol5(...) (gDebugCol(gxt::red_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
+// #define gDebugCol(col_fg,col_bg) (gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<col_fg<<col_bg)
+// #define gDebug(...) (gDebugCol(gxt::normal_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
+// #define gDebugWarn(...) (gDebugCol(gxt::black_fg,gxt::yellow_bg) << VAR(__VA_ARGS__))
+// #define gDebugError(...) (gDebugCol(gxt::white_fg,gxt::red_bg).Terminate() << VAR(__VA_ARGS__))
+// #define gDebugCol1(...) (gDebugCol(gxt::green_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
+// #define gDebugCol2(...) (gDebugCol(gxt::blue_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
+// #define gDebugCol3(...) (gDebugCol(gxt::magenta_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
+// #define gDebugCol4(...) (gDebugCol(gxt::cyan_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
+// #define gDebugCol5(...) (gDebugCol(gxt::red_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
 
 
 // Print split line such as "=============================="
@@ -1663,23 +1663,27 @@ class TimeCount {
     name_ = str;
     start_time_ = begin;
   }
-  ~TimeCount() {
-    if (print_) {
-      auto end_time = std::chrono::high_resolution_clock::now();
-      auto duration_time = std::chrono::duration_cast<T>(end_time - start_time_).count();
-      std::string name;
-      std::string time;
-      if (std::string(name_).empty()) name += std::string("Default");
-      else time += name_;
-      time += " Time: " + std::to_string(duration_time) + " ";
-      time += TimeUnitString<T>::GetUnitString();
-      G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time;
-    }
+  std::string Print() {
+    has_print_=true;
+    auto end_time = std::chrono::high_resolution_clock::now();
+    auto duration_time = std::chrono::duration_cast<T>(end_time - start_time_).count();
+    std::string name;
+    std::string time;
+    if (std::string(name_).empty()) name += std::string("Default");
+    else time += name_;
+    time += " Time: " + std::to_string(duration_time) + " ";
+    time += TimeUnitString<T>::GetUnitString();
+    if (print_)
+    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time;
+    return time;
   }
-  time_type GetStartTime() const{ return start_time_; };
+  ~TimeCount() {
+    if (!has_print_) { Print(); }
+  }
   void SetNotPrint() { print_=false; };
  private:
   std::string name_;
+  bool has_print_{false};
   bool print_{true};
   time_type start_time_;
 };
@@ -1703,40 +1707,34 @@ class TimeCount {
 }()
 
 // 定义宏 TIME_BEGIN 来开始计时(如果不执行TIME_END，就会在析构时自动输出时间)
-#define TIME_BEGIN(...) \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>(new gxt::detail::TimeCount<std::chrono::milliseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
 #define TIME_BEGIN_MS(...) \
   std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>(new gxt::detail::TimeCount<std::chrono::milliseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>(new gxt::detail::TimeCount<std::chrono::milliseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()))
 #define TIME_BEGIN_US(...) \
   std::unique_ptr<gxt::detail::TimeCount<std::chrono::microseconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::microseconds>>(new gxt::detail::TimeCount<std::chrono::microseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::microseconds>>(new gxt::detail::TimeCount<std::chrono::microseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()))
 #define TIME_BEGIN_NS(...) \
   std::unique_ptr<gxt::detail::TimeCount<std::chrono::nanoseconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::nanoseconds>>(new gxt::detail::TimeCount<std::chrono::nanoseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::nanoseconds>>(new gxt::detail::TimeCount<std::chrono::nanoseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()))
 #define TIME_BEGIN_S(...) \
   std::unique_ptr<gxt::detail::TimeCount<std::chrono::seconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::seconds>>(new gxt::detail::TimeCount<std::chrono::seconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()));
+  std::unique_ptr<gxt::detail::TimeCount<std::chrono::seconds>>(new gxt::detail::TimeCount<std::chrono::seconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()))
+#define TIME_BEGIN(...) TIME_BEGIN_MS(__VA_ARGS__)
 
 // 定义宏 TIME_END 来打印输出执行时间
 #define TIME_END(...) \
-  __time_count_##__VA_ARGS__.reset();
+  __time_count_##__VA_ARGS__->Print()
+// 定义宏不打印输出时间
+#define TIME_END_SET_NO_PRINT(...) \
+  __time_count_##__VA_ARGS__->SetNotPrint()
+
 
 // 定义宏 TIME_CODE 来开始计算代码执行时间
 #define TIME_CODE(...) \
   [&](){ \
-    auto __start_time__code__ = std::chrono::high_resolution_clock::now(); \
+    TIME_BEGIN(); \
     __VA_ARGS__; \
-    auto __end_time__code__ = std::chrono::high_resolution_clock::now(); \
-    auto __duration_time__code__ = std::chrono::duration_cast<std::chrono::milliseconds>(__end_time__code__ - __start_time__code__).count(); \
-    std::string name; \
-    std::string time; \
-    if(std::string(#__VA_ARGS__).empty()) name=""; \
-    else \
-    name = std::string(#__VA_ARGS__); \
-    time += std::string(" Time: ") + std::to_string(__duration_time__code__) + " ms"; \
-    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time; \
+    TIME_END(); \
   }();
 
 // 定义宏 TIME_LOOP 来计算一个循环耗时
