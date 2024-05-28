@@ -1663,7 +1663,7 @@ class TimeCount {
     name_ = str;
     start_time_ = begin;
   }
-  std::string Print() {
+  long Print() {
     has_print_=true;
     auto end_time = std::chrono::high_resolution_clock::now();
     auto duration_time = std::chrono::duration_cast<T>(end_time - start_time_).count();
@@ -1675,7 +1675,7 @@ class TimeCount {
     time += TimeUnitString<T>::GetUnitString();
     if (print_)
     G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time;
-    return time;
+    return duration_time;
   }
   ~TimeCount() {
     if (!has_print_) { Print(); }
