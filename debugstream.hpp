@@ -343,7 +343,8 @@ namespace pprint {
     }
 
     template <typename T>
-    typename std::enable_if<std::is_null_pointer<T>::value == true, void>::type
+    // typename std::enable_if<std::is_null_pointer<T>::value == true, void>::type
+    typename std::enable_if<std::is_same<std::nullptr_t, typename std::remove_cv<T>::type>::value == true, void>::type
     print_internal(T value, size_t indent = 0, const std::string& line_terminator = "\n", size_t level = 0) {
       stream_ << std::string(indent, ' ') << "nullptr" << line_terminator;
     }
@@ -1981,8 +1982,8 @@ inline int kbhit(void) {
 // 主要的函数
 inline void DebugWaitPlugin(int time_s = 10) {
   assert(time_s >= 0);
-  std::cout << "[GXT DEBUG]: debug wait plugin enable, TIMEOUT: <" << time_s
-            << "s>" << std::endl;
+  std::cout << "[GXT DEBUG]: debug wait plugin enable, THREAD_ID: " << getpid()
+            << " TIMEOUT: <" << time_s << "s>" << std::endl;
 #if defined(NDEBUG)
   std::cout << "[GXT DEBUG]: Current is <Release> or <RelWithDebInfo> Mode"
             << std::endl;
