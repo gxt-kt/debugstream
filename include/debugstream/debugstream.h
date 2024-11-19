@@ -16,64 +16,35 @@
  * auto newline is invalid.
  */
 
-#ifndef DEBUGSTREAM_H__
-#define DEBUGSTREAM_H__
+#pragma once
 
-
-#include <string>
-#include <functional>
-#include <memory>
-#include <cstdarg>
-#include <cstring>
-#include <cstdio>
-#include <sstream>
 
 // Reference : https://github.com/p-ranav/pprint
 
 // There will no debug stream output if define the G_CONFIG_NO_DEBUG_OUTPUT
 // #define G_CONFIG_NO_DEBUG_OUTPUT
 
+#include "stdc++.h"
+#include "definehelper.h"
 
-#include <iostream>
-#include <string>
-#include <typeinfo>
-#include <type_traits>
-#include <vector>
-#include <list>
-#include <deque>
-#include <set>
-#include <unordered_set>
-#include <array>
-#include <map>
-#include <unordered_map>
-#include <iomanip>
-#include <variant>
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <iosfwd>
-#include <limits>
-#include <string_view>
-#include <optional>
-#include <utility>
-#include <sstream>
-#include <queue>
-#include <stack>
-#include <tuple>
-#include <initializer_list>
-#include <complex>
-#include <cmath>
-#include <memory>
-#ifdef __GNUG__
-#include <cstdlib>
-#include <memory>
-#include <cxxabi.h>
-#endif
+#include "detail/time.h"
+#include "detail/leetcode.h"
+#include "detail/debugwaiting.h"
+#include "detail/random.h"
+#include "detail/logfile.h"
+#include "detail/bitset.h"
+#include "detail/debughelper.h"
+#include "detail/type.h"
+#include "detail/color.h"
+#include "detail/enum.h"
+
+#define MY_LIB_VERSION TO_STRING(MY_LIBRARY_VERSION)
+#define MY_LIB_VERSION_MAJOR MY_LIBRARY_VERSION
+#define MY_LIB_VERSION_MINOR MY_LIBRARY_VERSION_MINOR
+#define MY_LIB_VERSION_PATCH MY_LIBRARY_VERSION_MINOR
+
 
 namespace gxt {
-
-// support c++17 variant and optional
-#define SUPPORTS_CPP17 (__cplusplus >= 201703L)
 
 // Check if a type is stream writable, i.e., std::cout << foo;
 template<typename S, typename T, typename = void>
@@ -134,104 +105,6 @@ auto operator<<(std::basic_ostream<Ch, Tr>& os, std::tuple<Args...> const& t)
   return os << ")";
 }
 
-// enum imp
-namespace detail {
-
-// Enum value must be greater or equals than G_CONFIG_ENUM_RANGE_MIN. By default
-// G_CONFIG_ENUM_RANGE_MIN = -128. If need another min range for all enum types
-// by default, redefine the macro G_CONFIG_ENUM_RANGE_MIN.
-#if !defined(G_CONFIG_ENUM_RANGE_MIN)
-#define G_CONFIG_ENUM_RANGE_MIN -128
-#endif
-
-// Enum value must be less or equals than G_CONFIG_ENUM_RANGE_MAX. By default
-// G_CONFIG_ENUM_RANGE_MAX = 128. If need another max range for all enum types
-// by default, redefine the macro G_CONFIG_ENUM_RANGE_MAX.
-#if !defined(G_CONFIG_ENUM_RANGE_MAX)
-#define G_CONFIG_ENUM_RANGE_MAX 128
-#endif
-
-static_assert(G_CONFIG_ENUM_RANGE_MAX < std::numeric_limits<int>::max(),
-              "G_CONFIG_ENUM_RANGE_MAX must be less than INT_MAX.");
-
-static_assert(G_CONFIG_ENUM_RANGE_MIN > std::numeric_limits<int>::min(),
-              "G_CONFIG_ENUM_RANGE_MIN must be greater than INT_MIN.");
-
-template <typename T, T N>
-inline std::string GetEnumNameImp() {
-#if defined(__GNUC__) || defined(__clang__)
-  std::string tmp = __PRETTY_FUNCTION__;
-  auto first = tmp.find("T N = ");
-  first += 6;
-  auto end = tmp.find(";", first);
-  return std::string(tmp, first, end - first);
-#elif defined(_MSC_VER)
-  // TODO: add support for msvc
-#else
-#endif
-}
-
-template <int begin, int end, typename F>
-typename std::enable_if<begin == end>::type TemplateForLoop(const F &fun) {
-  fun.template call<begin>();
-}
-template <int begin, int end, typename F>
-typename std::enable_if<begin != end>::type TemplateForLoop(const F &fun) {
-  fun.template call<begin>();
-  TemplateForLoop<begin + 1, end>(fun);
-}
-
-
-template <typename T>
-struct GetEnumClass {
-  int n_;
-  std::string &str_;
-  GetEnumClass(int n, std::string &str) : n_(n), str_(str) {}
-
-  template <int N>
-  void call() const {
-    if (n_ == N) {
-      str_ = detail::GetEnumNameImp<T, T(N)>();
-    }
-  }
-};
-
-} // detail for enum imp
-
-template <typename T, int min = G_CONFIG_ENUM_RANGE_MIN,
-          int max = G_CONFIG_ENUM_RANGE_MAX>
-inline std::string GetEnumName(T n) {
-  std::string str;
-  gxt::detail::TemplateForLoop<min, max>(
-      gxt::detail::GetEnumClass<T>(static_cast<int>(n), str));
-  if (str.empty()) {
-    throw std::runtime_error("\nenum out of range\n");
-  }
-  return str;
-}
-
-template <typename T, int min = G_CONFIG_ENUM_RANGE_MIN,
-          int max = G_CONFIG_ENUM_RANGE_MAX>
-inline int GetNameEnum(std::string name) {
-  std::string str;
-  for (int i = G_CONFIG_ENUM_RANGE_MIN; i <= G_CONFIG_ENUM_RANGE_MAX; i++) {
-    gxt::detail::TemplateForLoop<G_CONFIG_ENUM_RANGE_MIN,
-                                 G_CONFIG_ENUM_RANGE_MAX>(
-        gxt::detail::GetEnumClass<T>(static_cast<int>(i), str));
-    if (!str.empty()) {  // solve bug that use class enum
-      auto find = str.find("::");
-      if (find != std::string::npos) {
-        find += 2;
-        str = std::string(str, find);
-      }
-    }
-    if (!str.empty() && str == name) {
-      return i;
-    }
-  }
-  throw std::runtime_error("\nenum out of range\n");
-  return 0;
-}
 
 namespace pprint {
 
@@ -1011,118 +884,35 @@ namespace pprint {
 
 }
 
-// The default call back function : use the printf to send the stream
-// inline void DebugSendStringCallBack_Default_(const char *str, int num) {
-//   std::printf("%.*s",num,str);
-// }
-inline void DebugSendStringCallBack_Default_(std::string str) {
-  std::cout << str;
-  // std::printf("%s",str.c_str());
-}
-
 // Set the endl compatible with std::endl;
 namespace detail{
 class DebugStreamEndl {};
 }
 inline void endl(detail::DebugStreamEndl){}
 
-//--------------------------------------------------
-namespace detail{
-static const char* DEBUG_STREAM_COLOR_FG_NORMAL = "\x1B[0m";
-static const char* DEBUG_STREAM_COLOR_FG_BLACK  = "\x1B[30m";
-static const char* DEBUG_STREAM_COLOR_FG_RED    = "\x1B[31m";
-static const char* DEBUG_STREAM_COLOR_FG_GREEN  = "\x1B[32m";
-static const char* DEBUG_STREAM_COLOR_FG_YELLOW = "\x1B[33m";
-static const char* DEBUG_STREAM_COLOR_FG_BLUE   = "\x1B[34m";
-static const char* DEBUG_STREAM_COLOR_FG_MAGENTA= "\x1B[35m";
-static const char* DEBUG_STREAM_COLOR_FG_CYAN   = "\x1B[36m";
-static const char* DEBUG_STREAM_COLOR_FG_WHITE  = "\x1B[37m";
-//--------------------------------------------------
-static const char* DEBUG_STREAM_COLOR_BG_NORMAL = "\x1B[49m";
-static const char* DEBUG_STREAM_COLOR_BG_BLACK  = "\x1b[40m";
-static const char* DEBUG_STREAM_COLOR_BG_RED    = "\x1b[41m";
-static const char* DEBUG_STREAM_COLOR_BG_GREEN  = "\x1B[42m";
-static const char* DEBUG_STREAM_COLOR_BG_YELLOW = "\x1B[43m";
-static const char* DEBUG_STREAM_COLOR_BG_BLUE   = "\x1B[44m";
-static const char* DEBUG_STREAM_COLOR_BG_MAGENTA= "\x1B[45m";
-static const char* DEBUG_STREAM_COLOR_BG_CYAN   = "\x1B[46m";
-static const char* DEBUG_STREAM_COLOR_BG_WHITE  = "\x1B[47m";
-}
-//--------------------------------------------------
-namespace detail{
-class normal_fg_t {}; 
-class black_fg_t  {}; 
-class red_fg_t    {}; 
-class green_fg_t  {}; 
-class yellow_fg_t {}; 
-class blue_fg_t   {}; 
-class magenta_fg_t{}; 
-class cyan_fg_t   {}; 
-class white_fg_t  {}; 
-//--------------------------------------------------
-class normal_bg_t {}; 
-class black_bg_t  {}; 
-class red_bg_t    {}; 
-class green_bg_t  {}; 
-class yellow_bg_t {}; 
-class blue_bg_t   {}; 
-class magenta_bg_t{}; 
-class cyan_bg_t   {}; 
-class white_bg_t  {}; 
-//--------------------------------------------------
-class debug_general_t     {};
-class debug_status_t      {};
-class debug_warning_t     {};
-class debug_error_t       {};
-class debug_fatal_error_t {};
-}
-inline void normal_fg (detail::normal_fg_t ) {}
-inline void black_fg  (detail::black_fg_t  ) {}
-inline void red_fg    (detail::red_fg_t    ) {}
-inline void green_fg  (detail::green_fg_t  ) {}
-inline void yellow_fg (detail::yellow_fg_t ) {}
-inline void blue_fg   (detail::blue_fg_t   ) {}
-inline void magenta_fg(detail::magenta_fg_t) {}
-inline void cyan_fg   (detail::cyan_fg_t   ) {}
-inline void white_fg  (detail::white_fg_t  ) {}
-//---------------------detail::-----------------------------
-inline void normal_bg (detail::normal_bg_t ) {}
-inline void black_bg  (detail::black_bg_t  ) {}
-inline void red_bg    (detail::red_bg_t    ) {}
-inline void green_bg  (detail::green_bg_t  ) {}
-inline void yellow_bg (detail::yellow_bg_t ) {}
-inline void blue_bg   (detail::blue_bg_t   ) {}
-inline void magenta_bg(detail::magenta_bg_t) {}
-inline void cyan_bg   (detail::cyan_bg_t   ) {}
-inline void white_bg  (detail::white_bg_t  ) {}
-
-// set the debug color
-inline void GENERAL     (detail::debug_general_t)     {}
-inline void STATUS      (detail::debug_status_t)      {}
-inline void WARNING     (detail::debug_warning_t)     {}
-inline void ERROR       (detail::debug_error_t)       {}
-inline void FATAL_ERROR (detail::debug_fatal_error_t) {}
-
 
 class DebugStream {
  public:
   //======================================
-  explicit DebugStream \
-  (std::function<void(const std::string&)>  fun_ = DebugSendStringCallBack_Default_, \
-  int buf_len_ = 2048);
+  explicit DebugStream(std::function<void(const std::string&)> func = nullptr)
+      : func_(func), pp(pprint_stream) {
+    if (func_ == nullptr) {
+      func_ = [](const std::string& str) { std::cout << str; };
+    }
+  };
   DebugStream(const DebugStream &obj);
   DebugStream(DebugStream &&obj);
   DebugStream& operator=(const DebugStream &obj);
   DebugStream& operator=(DebugStream &&obj);
   ~DebugStream();
   //===============================================================
-  inline DebugStream &OutEn(bool en)    {out_en=en;       return *this;}
+  inline DebugStream &OutEn(bool en)    {out_en_=en;       return *this;}
   inline DebugStream &NoNewLine()       {newline=false;   return *this;}
   inline DebugStream &NewLine()         {newline=true;    return *this;}
-  inline DebugStream &Space()           {space=true;      return *this;}
-  inline DebugStream &NoSpace()         {space=false;     return *this;}
-  inline DebugStream &Terminate()       {terminate=true;  return *this;}
-  inline DebugStream &ClearColor()      {clear_color=true;return *this;}
+  inline DebugStream &Space()           {space_=true;      return *this;}
+  inline DebugStream &NoSpace()         {space_=false;     return *this;}
+  inline DebugStream &Terminate()       {terminate_=true;  return *this;}
+  inline DebugStream &ClearColor()      {clear_color_=true;return *this;}
   //===============================================================
 
   //=========================================
@@ -1149,20 +939,18 @@ class DebugStream {
   DebugStream &operator<<(void(*)(detail::cyan_bg_t))   {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_CYAN; return (*this).Space();}
   DebugStream &operator<<(void(*)(detail::white_bg_t))  {(*this).NoSpace()<<detail::DEBUG_STREAM_COLOR_BG_WHITE; return (*this).Space();}
 
-  DebugStream &operator<<(void(*)(detail::debug_general_t))     {(*this).NoSpace()<<normal_fg<<normal_bg; return (*this).Space();}
-  DebugStream &operator<<(void(*)(detail::debug_status_t))      {(*this).NoSpace()<<red_fg<<cyan_bg; return (*this).Space();}
-  DebugStream &operator<<(void(*)(detail::debug_warning_t))     {(*this).NoSpace()<<green_fg<<yellow_bg; return (*this).Space();}
-  DebugStream &operator<<(void(*)(detail::debug_error_t))       {(*this).NoSpace()<<normal_fg<<blue_bg; return (*this).Space();}
-  DebugStream &operator<<(void(*)(detail::debug_fatal_error_t)) {(*this).NoSpace()<<normal_fg<<red_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_general_t))     {(*this).NoSpace()<<detail::normal_fg<<detail::normal_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_status_t))      {(*this).NoSpace()<<detail::red_fg   <<detail::cyan_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_warning_t))     {(*this).NoSpace()<<detail::green_fg <<detail::yellow_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_error_t))       {(*this).NoSpace()<<detail::normal_fg<<detail::blue_bg; return (*this).Space();}
+  DebugStream &operator<<(void(*)(detail::debug_fatal_error_t)) {(*this).NoSpace()<<detail::normal_fg<<detail::red_bg; return (*this).Space();}
 
   //======================================
-  #if 1
   template <typename T>
   DebugStream& operator<<(const T& value) {
     pp.print(value);
     if(!pprint_stream.str().empty()) {
-      // std::cout <<  pprint_stream.str();
-      printf(pprint_stream.str().c_str());
+      print_string(pprint_stream.str());
       MayBeSpace();
       pprint_stream.str("");
     }
@@ -1172,31 +960,33 @@ class DebugStream {
     stream.newline = false;
     return *this;
   }
-  #else
-  template <typename T,typename D=typename std::enable_if<!std::is_same<std::decay<DebugStream>,std::decay<T>>::value,T>::type>
-  DebugStream& operator<<(T&& value) {
-    pp.print(value);
-    if(!pprint_stream.str().empty()) {
-      // std::cout <<  pprint_stream.str();
-      printf(pprint_stream.str().c_str());
-      MayBeSpace();
-      pprint_stream.str("");
-    }
-    return *this;
-  }
-  DebugStream& operator<<(DebugStream& stream) {
-    stream.newline = false;
-    return *this;
-  }
-  #endif
   //======================================
  public:
+  DebugStream &Output(const std::string& str) {
+#ifdef G_CONFIG_NO_DEBUG_OUTPUT
+  return *this;
+#endif // G_CONFIG_NO_DEBUG_OUTPUT
+    if (!this->out_en_) {
+      return *this;
+    }
+    func_(str);
+    return *this;
+  }
   DebugStream &printf(const char *fmt, ...);
+  DebugStream &print_string(const std::string& str) {
+    Output(str);
+
+    size_t size=str.size();
+    // solve the bug that add newline still add space
+    if(str[size-1]==0X0A||str[size-1]==0X0D) {
+      newline_= true;
+    }
+    return *this;
+  }
   inline DebugStream &operator()() {
      return *this;
   }
   inline DebugStream& operator()(const char* varName) {
-    // (*this).printf(varName);
     (*this) << varName;
     return *this;
   }
@@ -1210,235 +1000,77 @@ class DebugStream {
     return *this;
   }
   template <typename... Args>
-  inline DebugStream& operator()(const char* varName, const char* fmt, Args... args) {
-    (*this).printf(fmt,args...);
+  inline DebugStream& operator()(const char* varName, const char* fmt, Args&&... args) {
+    (*this).printf(fmt,std::forward<Args>(args)...);
     MayBeSpace();
     return *this;
   }
   //======================================
  private:
   inline DebugStream &MayBeSpace() {
-    if (!newline_&&space) {
-      // (*this)(" ");
-      printf(" ");
-      // pprint_stream<<" ";
-    } 
+    if (!newline_&&space_) {
+      print_string(" ");
+    }
     newline_ = false;
     return *this;
   }
   //======================================
  private:
-  std::function<void(const std::string&)> fun;
-  int buf_len;
-  std::unique_ptr<char[]> buffer;
-  bool out_en{true};
-  bool space{true};
+  std::function<void(const std::string&)> func_;
+  bool out_en_{true};
+  bool space_{true};
   bool newline{false};
   bool newline_{false}; // solve the bug that add newline still add space
-  bool terminate{false}; // if true will terminate program if true Use for debug error info
-  bool clear_color{false}; // if true will clear color when deconstruct object
+  bool terminate_{false}; // if true will terminate program if true Use for debug error info
+  bool clear_color_{false}; // if true will clear color when deconstruct object
  private:
   std::stringstream pprint_stream;
   pprint::PrettyPrinter pp;
 };
 
-inline DebugStream::DebugStream(std::function<void(const std::string&)> fun_,
-                                int buf_len_)
-    : pp(pprint_stream) {
-  fun = fun_;
-  buf_len = buf_len_;
-  buffer = std::unique_ptr<char[]>(new char[buf_len]);
-}
-
-inline DebugStream::DebugStream(const DebugStream &obj) {
-  this->buf_len = obj.buf_len;
-  this->out_en = obj.out_en;
-  this->fun = obj.fun;
-  this->buffer = std::unique_ptr<char[]>(new char[buf_len]);
-}
-
-inline DebugStream::DebugStream(DebugStream &&obj) {
-  this->buf_len = obj.buf_len;
-  this->out_en = obj.out_en;
-  this->fun = obj.fun;
-  buffer=std::move(obj.buffer);
-}
-
-inline DebugStream &DebugStream::operator=(const DebugStream &obj) {
-  if (this != &obj) {
-    this->buf_len = obj.buf_len;
-    this->out_en = obj.out_en;
-    this->fun = obj.fun;
-    this->buffer = std::unique_ptr<char[]>(new char[buf_len]);
-  }
-  return *this;
-}
-
-inline DebugStream &DebugStream::operator=(DebugStream &&obj) {
-  if (this != &obj) {
-    this->buf_len = obj.buf_len;
-    this->out_en = obj.out_en;
-    this->fun = obj.fun;
-    this->buffer = std::move(obj.buffer);
-  }
-  return *this;
-}
-
 inline DebugStream::~DebugStream() {
-  if(terminate) {
-    (*this)<<normal_fg<<normal_bg; // mandatory clear the color
-    (*this)("\n"); // mandatory put a new line in case the error not output
+  if (terminate_) {
+    (*this) << detail::normal_fg << detail::normal_bg;  // mandatory clear the color
+    (*this)("\n");  // mandatory put a new line in case the error not output
     std::terminate();
   }
-  if(buffer==nullptr) return; // If buffer is nullptr, then cannot use print
-  if(clear_color) (*this)<<normal_fg<<normal_bg; 
+  if(clear_color_) (*this)<<detail::normal_fg<<detail::normal_bg; 
   if(newline) (*this)("\n"); // send a "\n"
 }
 
-inline DebugStream &DebugStream::printf(const char *fmt, ...) {
-#ifdef G_CONFIG_NO_DEBUG_OUTPUT
-  return *this;
-#endif // G_CONFIG_NO_DEBUG_OUTPUT
-  if (!this->out_en) {
-    return *this;
-  }
+inline DebugStream& DebugStream::printf(const char* fmt, ...) {
 
   va_list ap;
   va_start(ap, fmt);
-  std::vsprintf((char *) buffer.get() , fmt, ap);
-  int size = std::strlen(buffer.get());
+  char buffer[1024];
+  std::vsnprintf((char*)buffer, 1024, fmt, ap);
+  int size = std::strlen(buffer);
   va_end(ap);
 
-  fun(buffer.get());
+  Output(buffer);
 
   // solve the bug that add newline still add space
-  if(buffer.get()[size-1]==0X0A||buffer.get()[size-1]==0X0D) {
-    newline_= true;
+  if (buffer[size - 1] == 0X0A || buffer[size - 1] == 0X0D) {
+    newline_ = true;
   }
-
   return *this;
-}
-
-namespace detail{
-// FILE_LINE
-inline std::string FileLine(const std::string& file_name="",int line_num=-1) {
-  std::string res;
-  if(line_num<0) {
-    res = file_name;
-  } else if (file_name=="") {
-    res = std::to_string(line_num);
-  } else {
-    res = file_name+":"+std::to_string(line_num);
-  }
-  return res;
-}
-}
-#define G_FILE_LINE gxt::detail::FileLine(__FILE__, __LINE__)
-#define G_FILE gxt::detail::FileLine(__FILE__, -1)
-#define G_LINE gxt::detail::FileLine("", __LINE__)
-
-
-namespace detail {
-// Type Name Implement
-template <typename T>
-inline std::string TypeImpl() {
-#ifdef _MSC_VER // msvc support
-  std::string str=__FUNCSIG__;
-  auto posi_start = str.find(",");
-  posi_start += 1;
-  auto posi_end=str.find_first_of(">",posi_start);
-#else // gcc and clangd
-  std::string str=__PRETTY_FUNCTION__;
-  auto posi_start = str.find("T = ");
-  posi_start += 4;
-  auto posi_end=str.find_first_of(";",posi_start);
-#endif
-  return str.substr(posi_start,posi_end-posi_start);
-}
-}
-#define TYPET(type) (gxt::detail::TypeImpl<type>())
-#define TYPE(type) (gxt::detail::TypeImpl<decltype(type)>())
-
-namespace g_var {
-
-#define COUNT_ARGS_IMPL(_null, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...) N
-#define COUNT_ARGS(...) COUNT_ARGS_IMPL(0 __VA_OPT__(, ) __VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
-
-#define VARIMP(x) #x << "=" << x
-
-#define G_VAR0() ""
-#define G_VAR1(_1) VARIMP(_1)
-#define G_VAR2(_1, _2) VARIMP(_1) << "," << G_VAR1(_2)
-#define G_VAR3(_1, _2, _3) VARIMP(_1) << "," << G_VAR2(_2, _3)
-#define G_VAR4(_1, _2, _3, _4) VARIMP(_1) << "," << G_VAR3(_2, _3, _4)
-#define G_VAR5(_1, _2, _3, _4, _5) VARIMP(_1) << "," << G_VAR4(_2, _3, _4, _5)
-#define G_VAR6(_1, _2, _3, _4, _5, _6) VARIMP(_1) << "," << G_VAR5(_2, _3, _4, _5, _6)
-#define G_VAR7(_1, _2, _3, _4, _5, _6, _7) \
-  VARIMP(_1) << "," << G_VAR6(_2, _3, _4, _5, _6, _7)
-#define G_VAR8(_1, _2, _3, _4, _5, _6, _7, _8) \
-  VARIMP(_1) << "," << G_VAR7(_2, _3, _4, _5, _6, _7, _8)
-#define G_VAR9(_1, _2, _3, _4, _5, _6, _7, _8, _9) \
-  VARIMP(_1) << "," << G_VAR8(_2, _3, _4, _5, _6, _7, _8, _9)
-#define G_VAR10(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10) \
-  VARIMP(_1) << "," << G_VAR9(_2, _3, _4, _5, _6, _7, _8, _9, _10)
-
-#define G_VARHELPIMP(N, ...) G_VAR##N(__VA_ARGS__)
-#define G_VARHELP(N, ...) G_VARHELPIMP(N __VA_OPT__(, ) __VA_ARGS__)
-
-// Usage: gDebug() << VAR(a,b) // stdout: a = ${a} , b = ${b}
-#define VAR(...) G_VARHELP(COUNT_ARGS(__VA_ARGS__) __VA_OPT__(, ) __VA_ARGS__)
-
-}  // namespace g_var
-
-// Define a macro to get the parameter at the specified position in the parameter list
-#define GET_ARG(N, ...) GET_ARG_##N (__VA_ARGS__)
-#define GET_ARG_1(arg, ...) arg
-#define GET_ARG_2(arg, ...) GET_ARG_1(__VA_ARGS__) 
-#define GET_ARG_3(arg, ...) GET_ARG_2(__VA_ARGS__) 
-#define GET_ARG_4(arg, ...) GET_ARG_3(__VA_ARGS__) 
-#define GET_ARG_5(arg, ...) GET_ARG_4(__VA_ARGS__) 
-
-
-namespace detail{
-// Get the number of input parameters
-template <typename ...T>
-__attribute__((deprecated))
-inline int GetParaNumber(T ...para){ return sizeof...(para); }
-
-// Prevent input null parameter
-template <typename T,T value>
-__attribute__((deprecated))
-inline T PreventNULL(const T& para){ return para;}
-template <typename T,T value>
-__attribute__((deprecated))
-inline T PreventNULL(){return value;}
 }
 
 } // namespace gxt
 
-#define gDebugN(a,...) \
-    [=](int max_print_cnt = -1,int cnt = 1) { \
-      static int cnt_i{cnt}; \
-      static int max_print_i{0}; \
-      if(max_print_cnt>=0&&max_print_i>=max_print_cnt) return; \
-      if (cnt_i++ >= cnt) { \
-        gDebug(a); \
-        cnt_i = 1; \
-        ++max_print_i; \
-      } \
-    }(__VA_ARGS__)
+#define gDebugColFun(col_fg,col_bg,func,...) ((gxt::DebugStream(func).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebug(...) gDebugColFun(gxt::detail::normal_fg,gxt::detail::normal_bg,nullptr,##__VA_ARGS__)
+#define gDebugWarn(...) gDebugColFun(gxt::detail::black_fg,gxt::detail::yellow_bg,nullptr,##__VA_ARGS__)
+#define gDebugError(...) gDebugColFun(gxt::detail::white_fg,gxt::detail::red_bg,nullptr,##__VA_ARGS__).Terminate()
+#define gDebugCol1(...) gDebugColFun(gxt::detail::green_fg,gxt::detail::normal_bg,nullptr,##__VA_ARGS__)
+#define gDebugCol2(...) gDebugColFun(gxt::detail::blue_fg,gxt::detail::normal_bg,nullptr,##__VA_ARGS__)
+#define gDebugCol3(...) gDebugColFun(gxt::detail::magenta_fg,gxt::detail::normal_bg,nullptr,##__VA_ARGS__)
+#define gDebugCol4(...) gDebugColFun(gxt::detail::cyan_fg,gxt::detail::normal_bg,nullptr,##__VA_ARGS__)
+#define gDebugCol5(...) gDebugColFun(gxt::detail::red_fg,gxt::detail::normal_bg,nullptr,##__VA_ARGS__)
 
-#define gDebugCol(col_fg,col_bg,...) ((gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebug(...) gDebugCol(gxt::normal_fg,gxt::normal_bg,##__VA_ARGS__)
-#define gDebugWarn(...) gDebugCol(gxt::black_fg,gxt::yellow_bg,##__VA_ARGS__)
-#define gDebugError(...) gDebugCol(gxt::white_fg,gxt::red_bg,##__VA_ARGS__).Terminate()
-#define gDebugCol1(...) gDebugCol(gxt::green_fg,gxt::normal_bg,##__VA_ARGS__)
-#define gDebugCol2(...) gDebugCol(gxt::blue_fg,gxt::normal_bg,##__VA_ARGS__)
-#define gDebugCol3(...) gDebugCol(gxt::magenta_fg,gxt::normal_bg,##__VA_ARGS__)
-#define gDebugCol4(...) gDebugCol(gxt::cyan_fg,gxt::normal_bg,##__VA_ARGS__)
-#define gDebugCol5(...) gDebugCol(gxt::red_fg,gxt::normal_bg,##__VA_ARGS__)
 
-// #define gDebugCol(col_fg,col_bg) (gxt::DebugStream(gxt::DebugSendStringCallBack_Default_).NewLine().ClearColor()<<col_fg<<col_bg)
+
+// #define gDebugCol(col_fg,col_bg) (gxt::DebugStream().NewLine().ClearColor()<<col_fg<<col_bg)
 // #define gDebug(...) (gDebugCol(gxt::normal_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
 // #define gDebugWarn(...) (gDebugCol(gxt::black_fg,gxt::yellow_bg) << VAR(__VA_ARGS__))
 // #define gDebugError(...) (gDebugCol(gxt::white_fg,gxt::red_bg).Terminate() << VAR(__VA_ARGS__))
@@ -1449,35 +1081,9 @@ inline T PreventNULL(){return value;}
 // #define gDebugCol5(...) (gDebugCol(gxt::red_fg,gxt::normal_bg) << VAR(__VA_ARGS__))
 
 
-// Print split line such as "=============================="
-namespace gxt {
-namespace detail {
-class SplitLine {
- public:
-  std::string operator()(std::string str="", size_t size = size_,char c=default_char_) const {
-    size_t len=str.size();
-    if(len>size) return "";
-    size_t left_len=(size-len)/2;
-    std::string ret;
-    ret=std::string(left_len,c)+str+std::string((size-left_len-len),c);
-    return ret;
-  }
-  friend std::ostream& operator<<(std::ostream& os, const SplitLine& obj) {
-    std::string res;
-    res = obj.operator()();
-    os << res;
-    return os;
-  }
- private:
-  static const int size_ = 30;
-  static const char default_char_ = '=';
-};
-}  // namespace detail
-}  // namespace gxt
-
 // Print Restricted Cnt
-namespace gxt {
-namespace detail {
+namespace gxt{
+namespace detail{
 class PrintCnt {
  public:
   /*
@@ -1490,25 +1096,25 @@ class PrintCnt {
     max_print_cnt_ = max_print_cnt;
     print_interval_ = print_interval;
     terminate_ = terminate;
-    if (!exec_once) {
-      exec_once = true;
-      cnt_interval = print_interval_;
+    if (!exec_once_) {
+      exec_once_ = true;
+      cnt_interval_ = print_interval_;
     }
     return *this;
   }
   friend gxt::DebugStream& operator<<(gxt::DebugStream& os, PrintCnt& obj) {
-    if (obj.max_print_cnt_ >= 0 && obj.cnt >= obj.max_print_cnt_) {
+    if (obj.max_print_cnt_ >= 0 && obj.cnt_ >= obj.max_print_cnt_) {
       if (obj.terminate_) os.Terminate();
       os.OutEn(false);
       return os;
     }
-    if (obj.cnt_interval++ >= obj.print_interval_) {
+    if (obj.cnt_interval_++ >= obj.print_interval_) {
       os.OutEn(true);
-      ++(obj.cnt);
-      if (obj.max_print_cnt_ >= 0 && obj.cnt >= obj.max_print_cnt_) {
+      ++(obj.cnt_);
+      if (obj.max_print_cnt_ >= 0 && obj.cnt_ >= obj.max_print_cnt_) {
         if (obj.terminate_) os.Terminate();
       }
-      obj.cnt_interval = 1;
+      obj.cnt_interval_ = 1;
     } else {
       os.OutEn(false);
     };
@@ -1516,630 +1122,35 @@ class PrintCnt {
   }
 
  private:
-  bool exec_once = false;
-  int cnt = 0;
-  size_t cnt_interval = 1;
+  bool exec_once_ = false;
+  int cnt_ = 0;
+  size_t cnt_interval_ = 1;
   int max_print_cnt_ = -1;
   size_t print_interval_ = 1;
   bool terminate_ = false;
 };
-}  // namespace detail
-}  // namespace gxt
-
-#define G_PRINT_CNT []()->gxt::detail::PrintCnt& \
-  {static gxt::detail::PrintCnt print_cnt; return print_cnt;}()
-
-#define G_SPLIT_LINE gxt::detail::SplitLine()
-
-namespace gxt {
-namespace detail {
-// print class attributes
-template <class T, class D = typename std::enable_if<std::is_class<T>::value, T>::type>
-[[nodiscard]] inline std::string ClassDetail(std::string class_name) {
-  // static_assert(std::is_same<T,D>::value,"T must be class type");
-
-  std::stringstream str;
-  str << std::boolalpha;
-  str << "\n";
-
-#define CLASS_DETAIL_SPLIT(str_) str << G_SPLIT_LINE(str_, 44) << "\n";
-
-#define CLASS_DETAIL_VAR(tt)                                       \
-  str << std::setw(35) << std::left << #tt << "| " << std::setw(5) \
-      << std::tt<T>() << " |\n"
-
-  CLASS_DETAIL_SPLIT(">")
-  str << "class name: " << class_name << "\n";
-  CLASS_DETAIL_SPLIT("=")
-
-  CLASS_DETAIL_VAR(is_constructible);
-  CLASS_DETAIL_VAR(is_trivially_constructible);
-  CLASS_DETAIL_VAR(is_nothrow_constructible);
-
-  CLASS_DETAIL_SPLIT("-")
-
-  CLASS_DETAIL_VAR(is_default_constructible);
-  CLASS_DETAIL_VAR(is_trivially_default_constructible);
-  CLASS_DETAIL_VAR(is_nothrow_default_constructible);
-
-  CLASS_DETAIL_SPLIT("-")
-
-  CLASS_DETAIL_VAR(is_copy_constructible);
-  CLASS_DETAIL_VAR(is_trivially_copy_constructible);
-  CLASS_DETAIL_VAR(is_nothrow_copy_constructible);
-
-  CLASS_DETAIL_SPLIT("-")
-
-  CLASS_DETAIL_VAR(is_move_constructible);
-  CLASS_DETAIL_VAR(is_trivially_move_constructible);
-  CLASS_DETAIL_VAR(is_nothrow_move_constructible);
-
-  CLASS_DETAIL_SPLIT("-")
-
-  // CLASS_DETAIL_VAR(is_assignable);
-  // CLASS_DETAIL_VAR(is_trivially_assignable);
-  // CLASS_DETAIL_VAR(is_nothrow_assignable);
-  //
-  // CLASS_DETAIL_SPLIT("-")
-
-  CLASS_DETAIL_VAR(is_copy_assignable);
-  CLASS_DETAIL_VAR(is_trivially_copy_assignable);
-  CLASS_DETAIL_VAR(is_nothrow_copy_assignable);
-
-  CLASS_DETAIL_SPLIT("-")
-
-  CLASS_DETAIL_VAR(is_move_assignable);
-  CLASS_DETAIL_VAR(is_trivially_move_assignable);
-  CLASS_DETAIL_VAR(is_nothrow_move_assignable);
-
-  CLASS_DETAIL_SPLIT("-")
-
-  CLASS_DETAIL_VAR(is_destructible);
-  CLASS_DETAIL_VAR(is_trivially_destructible);
-  CLASS_DETAIL_VAR(is_nothrow_destructible);
-
-  CLASS_DETAIL_SPLIT("-")
-
-  CLASS_DETAIL_VAR(has_virtual_destructor);
-
-  #if SUPPORTS_CPP17
-  // CLASS_DETAIL_SPLIT("-")
-  // CLASS_DETAIL_VAR(is_swappable_with);
-  CLASS_DETAIL_VAR(is_swappable);
-  // CLASS_DETAIL_VAR(is_nothrow_swappable_with);
-  CLASS_DETAIL_VAR(is_nothrow_swappable);
-  #endif
-
-  CLASS_DETAIL_SPLIT("=")
-  CLASS_DETAIL_SPLIT("<")
-
-#undef CLASS_DETAIL_VAR
-#undef CLASS_DETAIL_SPLIT
-
-  return str.str();
 }
-
-}  // namespace detail
-}  // namespace gxt
-
-#define CLASS(type) gxt::detail::ClassDetail<type>(#type)
-
-#include <chrono>
-#include <thread>
-
-// time lib
-namespace gxt{
-#if !defined(G_CONFIG_TIME_COLOR_NAME)
-#define G_CONFIG_TIME_COLOR_NAME gDebugCol3
-#endif
-#if !defined(G_CONFIG_TIME_COLOR_TIME)
-#define G_CONFIG_TIME_COLOR_TIME gDebugCol4
-#endif
-namespace detail {
-
-// 默认模板参数为 std::chrono::milliseconds
-template <typename T = std::chrono::milliseconds>
-struct TimeUnitString {
-  static std::string GetUnitString() { return "ms"; }
-};
-// 针对 std::chrono::microseconds 的模板特化
-template <>
-struct TimeUnitString<std::chrono::microseconds> {
-  static std::string GetUnitString() { return "us"; }
-};
-template <>
-struct TimeUnitString<std::chrono::nanoseconds> {
-  static std::string GetUnitString() { return "ns"; }
-};
-template <>
-struct TimeUnitString<std::chrono::seconds> {
-  static std::string GetUnitString() { return "s"; }
-};
-
-template <typename T=std::chrono::milliseconds>
-class TimeCount {
-  using time_type = std::chrono::high_resolution_clock::time_point;
- public:
-  TimeCount(std::string str, time_type begin) {
-    name_ = str;
-    start_time_ = begin;
-  }
-  long Print() {
-    has_print_=true;
-    auto end_time = std::chrono::high_resolution_clock::now();
-    auto duration_time = std::chrono::duration_cast<T>(end_time - start_time_).count();
-    std::string name;
-    std::string time;
-    if (std::string(name_).empty()) name += std::string("Default");
-    else time += name_;
-    time += " Time: " + std::to_string(duration_time) + " ";
-    time += TimeUnitString<T>::GetUnitString();
-    if (print_)
-    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time;
-    return duration_time;
-  }
-  ~TimeCount() {
-    if (!has_print_) { Print(); }
-  }
-  void SetNotPrint() { print_=false; };
- private:
-  std::string name_;
-  bool has_print_{false};
-  bool print_{true};
-  time_type start_time_;
-};
-
 }
-
-
-// 定义宏 TIME_FUNCTION 来计算一个函数耗时
-#define TIME_FUNCTION(func) \
- [&]()->decltype(func){ \
-    auto start = std::chrono::high_resolution_clock::now(); \
-    decltype(func) result = func; \
-    auto end = std::chrono::high_resolution_clock::now(); \
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(); \
-    std::string name; \
-    std::string time; \
-    name += std::string(#func); \
-    time += std::string(" Time: ") + std::to_string(duration) + " ms"; \
-    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time; \
-    return result; \
-}()
-
-// 定义宏 TIME_BEGIN 来开始计时(如果不执行TIME_END，就会在析构时自动输出时间)
-#define TIME_BEGIN_MS(...) \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::milliseconds>>(new gxt::detail::TimeCount<std::chrono::milliseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()))
-#define TIME_BEGIN_US(...) \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::microseconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::microseconds>>(new gxt::detail::TimeCount<std::chrono::microseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()))
-#define TIME_BEGIN_NS(...) \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::nanoseconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::nanoseconds>>(new gxt::detail::TimeCount<std::chrono::nanoseconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()))
-#define TIME_BEGIN_S(...) \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::seconds>>  __time_count_##__VA_ARGS__= \
-  std::unique_ptr<gxt::detail::TimeCount<std::chrono::seconds>>(new gxt::detail::TimeCount<std::chrono::seconds>(#__VA_ARGS__,std::chrono::high_resolution_clock::now()))
-#define TIME_BEGIN(...) TIME_BEGIN_MS(__VA_ARGS__)
-
-// 定义宏 TIME_END 来打印输出执行时间
-#define TIME_END(...) \
-  __time_count_##__VA_ARGS__->Print()
-// 定义宏不打印输出时间
-#define TIME_END_SET_NO_PRINT(...) \
-  __time_count_##__VA_ARGS__->SetNotPrint()
-
-
-// 定义宏 TIME_CODE 来开始计算代码执行时间
-#define TIME_CODE(...) \
-  [&](){ \
-    TIME_BEGIN(); \
-    __VA_ARGS__; \
-    TIME_END(); \
-  }();
-
-// 定义宏 TIME_LOOP 来计算一个循环耗时
-#define TIME_LOOP(...) \
-  []()->std::string{ \
-    static auto __time_loop_begin_##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
-    static size_t __time_loop_i__##__VA_ARGS__ = 0; \
-    auto __time_loop_end_##__VA_ARGS__ = std::chrono::high_resolution_clock::now(); \
-    auto __loop_duration_time__##__VA_ARGS__ = std::chrono::duration_cast<std::chrono::milliseconds>(__time_loop_end_##__VA_ARGS__ - __time_loop_begin_##__VA_ARGS__).count(); \
-    __time_loop_begin_##__VA_ARGS__=__time_loop_end_##__VA_ARGS__;\
-    std::string name; \
-    std::string time; \
-    if(__time_loop_i__##__VA_ARGS__==0) { \
-      name= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): " + std::to_string(__time_loop_i__##__VA_ARGS__); \
-      time= std::string(" Time: ")  + "initialize"; \
-    } else { \
-      name= std::string("TIME_LOOP(") + #__VA_ARGS__ + "): "+std::to_string(__time_loop_i__##__VA_ARGS__); \
-      time = std::string(" Time: ") + std::to_string(__loop_duration_time__##__VA_ARGS__) + " ms"; \
-    } \
-    ++__time_loop_i__##__VA_ARGS__; \
-    G_CONFIG_TIME_COLOR_NAME().NoSpace() << name << G_CONFIG_TIME_COLOR_TIME() << time; \
-    return name+time; \
+#define G_PRINT_CNT                         \
+  []() -> gxt::detail::PrintCnt& {          \
+    static gxt::detail::PrintCnt print_cnt; \
+    return print_cnt;                       \
   }()
 
-inline void Sleep(std::int64_t time) {
-  std::this_thread::sleep_for(std::chrono::seconds(time));  
-}
-inline void SleepMs(int64_t time) {
-  std::this_thread::sleep_for(std::chrono::milliseconds(time));  
-}
-inline void SleepUs(int64_t time) {
-  std::this_thread::sleep_for(std::chrono::microseconds(time));  
-}
-inline void SleepNs(int64_t time) {
-  std::this_thread::sleep_for(std::chrono::nanoseconds(time));  
-}
-
-inline long GetTime() {
-  auto time = std::chrono::duration_cast<std::chrono::seconds>(
-                  std::chrono::system_clock::now().time_since_epoch())
-                  .count();
-  return time;
-}
-inline long GetTimeMs() {
-  auto time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                  std::chrono::system_clock::now().time_since_epoch())
-                  .count();
-  return time;
-}
-inline long GetTimeUs() {
-  auto time = std::chrono::duration_cast<std::chrono::microseconds>(
-                  std::chrono::system_clock::now().time_since_epoch())
-                  .count();
-  return time;
-}
-inline long GetTimeNs() {
-  auto time = std::chrono::duration_cast<std::chrono::nanoseconds>(
-                  std::chrono::system_clock::now().time_since_epoch())
-                  .count();
-  return time;
-}
-
-}
-
-
-// random number lib
-#include <cstdlib>
-#include <random>
+// rename fmt::format to gxt::format
+#define FMT_HEADER_ONLY
+#include "detail/fmt/format.h"
 namespace gxt {
-
-// get random number method : pool scalability
-/* 
-template <typename T=int>
-inline typename std::enable_if<std::is_integral<T>::value == true, T>::type
-Random(T min = std::numeric_limits<T>::min(),
-       T max = std::numeric_limits<T>::max()) {
-  if (min > max) {
-    throw std::invalid_argument("Invalid range: min > max");
-  }
-  std::random_device rd;
-  std::mt19937 gen(0);
-  std::uniform_int_distribution<T> dist(min, max);
-  return dist(gen);
+template <typename... T>
+FMT_NODISCARD FMT_INLINE auto format(fmt::format_string<T...> fmt, T&&... args)
+    -> std::string {
+  return vformat(fmt, fmt::make_format_args(args...));
 }
 
-template <typename T>
-inline typename std::enable_if<std::is_floating_point<T>::value == true, T>::type
-Random(T min = std::numeric_limits<T>::min(),
-       T max = std::numeric_limits<T>::max()) {
-  if (min > max) {
-    throw std::invalid_argument("Invalid range: min > max");
-  }
-  std::random_device rd;
-  std::mt19937 gen(0);
-  std::uniform_real_distribution<T> dist(min, max);
-  return dist(gen);
-}
-*/
-
-namespace detail{
-template <typename T>
-struct RandomTypeTraits {
-  static T Min() { return std::numeric_limits<T>::min(); }
-  static T Max() { return std::numeric_limits<T>::max(); }
-
-  template <typename U>
-  typename std::enable_if<std::is_integral<U>::value == true, U>::type
-  GetValImpl_(U min, U max) {
-    std::uniform_int_distribution<U> dist(min, max);
-    return dist(gen_);
-  }
-  template <typename U>
-  typename std::enable_if<std::is_floating_point<U>::value == true, U>::type
-  GetValImpl_(U min, U max) {
-    std::uniform_real_distribution<U> dist(min, max);
-    return dist(gen_);
-  }
-
-  T GetVal(T min, T max) { return GetValImpl_<T>(min, max); }
-  RandomTypeTraits(std::mt19937& gen) : gen_(gen){};
-  std::mt19937& gen_;
-};
-
-template <>
-struct RandomTypeTraits<bool> {
-  static double Min() { return 0.0; }
-  static double Max() { return 1.0; }
-  using DistributionType = std::uniform_real_distribution<double>;
-  bool GetVal(bool min, bool max) {
-    DistributionType dist(Min(), Max());
-    return dist(gen_) > 0.5;
-  }
-  RandomTypeTraits(std::mt19937& gen) : gen_(gen){};
-  std::mt19937& gen_;
-};
-
-inline std::mt19937& GenerateRandomGen(
-    unsigned int value = std::numeric_limits<unsigned int>::max()) {
-  static std::random_device rd;
-  // static std::mt19937 gen(0);
-  static std::mt19937 gen(rd());
-  return gen;
-}
-}
-
-template <typename T = int, int rd_val = -1>
-inline T Random(T min = gxt::detail::RandomTypeTraits<T>::Min(),
-                T max = gxt::detail::RandomTypeTraits<T>::Max()) {
-  if (min > max) {
-    throw std::invalid_argument("Invalid range: min > max");
-  }
-  if (rd_val==-1) {
-    return gxt::detail::RandomTypeTraits<T>(gxt::detail::GenerateRandomGen()).GetVal(min, max);
-  } else {
-    static std::mt19937 gen(rd_val);
-    return gxt::detail::RandomTypeTraits<T>(gen).GetVal(min, max);
-  }
-}
-
-}  // namespace gxt
-
-// string function
-namespace gxt{
-inline std::string PadStringToDesignChars(const std::string& input, size_t n = 8) {
-  // 检查原始字符串的长度
-  if (input.length() >= n) {
-    return input.substr(0, n);  // 只保留前n个字符
-  }
-  // 计算需要补全的字符数
-  int padding_cnt = n - input.length();
-  // 计算前半部分和后半部分的补全字符数
-  int left_pad_cnt = padding_cnt / 2;
-  int right_pad_cnt = padding_cnt - left_pad_cnt;
-  // 构建补全后的字符串
-  std::string padded_str;
-  padded_str.reserve(n);  // 预分配空间以提高性能
-  // 添加前半部分的补全字符
-  padded_str.append(left_pad_cnt, ' ');
-  // 添加原始字符串
-  padded_str += input;
-  // 添加后半部分的补全字符
-  padded_str.append(right_pad_cnt, ' ');
-  return padded_str;
-}
-}
-
-// watch bit
-#if SUPPORTS_CPP17
-#include <bitset>
-namespace gxt {
-#define G_WATCH_BYTE(var, n) \
-  (static_cast<int>(*(reinterpret_cast<const std::byte*>(&var) + n)))
-
-template <typename T, size_t N = sizeof(T)>
-std::string WatchBit(const T& val) {
-  // get address
-  // std::stringstream ss;
-  // ss << "0x" << std::hex << reinterpret_cast<long>(&val);
-  // gDebug(ss.str());
-
-  std::stringstream ss;
-  for (int i = N - 1; i >= 0; i--) {
-    ss << std::bitset<8>(G_WATCH_BYTE(val, i)) << " ";
-  }
-  std::string str = ss.str();
-  str.pop_back();
-  return str;
+template <typename Locale, typename... T,
+          FMT_ENABLE_IF(fmt::detail::is_locale<Locale>::value)>
+inline auto format(const Locale& loc, fmt::format_string<T...> fmt, T&&... args)
+    -> std::string {
+  return fmt::vformat(loc, string_view(fmt), fmt::make_format_args(args...));
 }
 }  // namespace gxt
-#endif
-
-namespace gxt {
-namespace detail {
-#include <termios.h>
-#include <unistd.h>
-// 设置终端为非阻塞模式
-inline void SetNonBlocking(bool enable) {
-  termios tty;
-  tcgetattr(STDIN_FILENO, &tty);
-  if (enable) {
-    tty.c_lflag &= ~ICANON & ~ECHO;
-    tty.c_cc[VMIN] = 0;
-    tty.c_cc[VTIME] = 0;
-  } else {
-    tty.c_lflag |= ICANON | ECHO;
-  }
-  tcsetattr(STDIN_FILENO, TCSANOW, &tty);
-}  // namespace gxt
-
-// 检查按键是否被按下
-inline int kbhit(void) {
-  std::array<char, 1> buf;
-  SetNonBlocking(true);
-  auto ret = read(STDIN_FILENO, buf.data(), 1);
-  SetNonBlocking(false);
-  if (ret > 0) {
-    // 把读到的字符放回去，以便后面的读取操作能够获取到它
-    ungetc(buf[0], stdin);
-    return 1;
-  }
-  return 0;
-}
-
-// 主要的函数
-inline void DebugWaitPlugin(int time_s = 10) {
-  assert(time_s >= 0);
-  std::cout << "[GXT DEBUG]: debug wait plugin enable, THREAD_ID: " << getpid()
-            << " TIMEOUT: <" << time_s << "s>" << std::endl;
-#if defined(NDEBUG)
-  std::cout << "[GXT DEBUG]: Current is <Release> or <RelWithDebInfo> Mode"
-            << std::endl;
-#else
-  std::cout << "[GXT DEBUG]: Current is <Debug> Mode" << std::endl;
-#endif
-  std::cout << "[GXT DEBUG]: Press 'Enter' to skip waiting, 'q' or 'ESC' to "
-               "exit, 'c' to "
-               "toggle unlimited wait."
-            << std::endl;
-  setbuf(stdout, NULL);  // set stdout can output when debug
-
-  using namespace std::chrono;
-
-  auto start = steady_clock::now();
-  bool unlimited_wait = false;
-
-  SetNonBlocking(true);
-
-  while (true) {
-    if (kbhit()) {
-      char ch = getchar();
-      if (ch == '\n') {  // Enter
-        std::cout << "[GXT DEBUG]: Continue Exec!" << std::endl;
-        std::cout << "[GXT DEBUG]: ====================" << std::endl;
-        break;
-      } else if (ch == 'q' || ch == 27) {  // 'q' or ESC
-        std::cout << "[GXT DEBUG]: Termiate and Exit!" << std::endl;
-        SetNonBlocking(false);
-        std::terminate();
-      } else if (ch == 'c') {
-        if (unlimited_wait) {
-          std::cout << "\n[GXT DEBUG]: Continue Exec!" << std::endl;
-          std::cout << "[GXT DEBUG]: ====================" << std::endl;
-          break;
-        }
-        std::cout << "\n[GXT DEBUG]: Unlimited Waiting! Press 'c' again to "
-                     "continue!"
-                  << std::endl;
-        unlimited_wait = !unlimited_wait;
-      }
-    }
-
-    if (!unlimited_wait) {
-      auto now = steady_clock::now();
-      auto elapsed = duration_cast<seconds>(now - start);
-      if (elapsed.count() >= time_s) {
-        std::cout << "\n[GXT DEBUG]: Time Out! Continue Exec!" << std::endl;
-        std::cout << "[GXT DEBUG]: ====================" << std::endl;
-        break;
-      }
-    }
-
-    if (!unlimited_wait) std::cout << '.' << std::flush;
-    std::this_thread::sleep_for(milliseconds(100));  // 减少 CPU 使用
-  }
-
-  SetNonBlocking(false);
-}
-}  // namespace detail
-}  // namespace gxt
-
-#define G_DEBUG_WAIT_PLUGIN(...)                                     \
-  __attribute__((constructor(101))) void __g_debug_wait_plugin__() { \
-    gxt::detail::DebugWaitPlugin(__VA_ARGS__);                       \
-  }
-
-namespace gxt{
-namespace algorithm{
-
-/*Print Tree
-  Example:
-  std::string res = PrintTree(
-      root, [](Node* node){ return node->left; },
-      [](Node* node){ return node->right; },
-      [](Node* node){ return node->value; });
-  gDebugCol1() << res;
-*/
-template <typename T, typename F_LEFT, typename F_RIGHT, typename F_VAL>
-inline std::string PrintTree(T* node, F_LEFT f_left, F_RIGHT f_right, F_VAL f_val,
-                      int level = 0, char branch = ' ') {
-  if (node == nullptr) return "";
-  std::string res;
-
-  res += PrintTree(f_right(node), f_left, f_right, f_val, level + 1, '/');
-  for (int i = 0; i < level; i++) {
-    res += "    ";
-  }
-  res += (branch + std::string("--") + std::to_string(f_val(node)) + "\n");
-  res += PrintTree(f_left(node), f_left, f_right, f_val, level + 1, '\\');
-  return res;
-}
-
-template <typename T, typename F_LEFT, typename F_RIGHT, typename F_VAL>
-inline std::vector<std::vector<std::string>> CreateBinaryTreeStructure(T* root,
-                                                                F_LEFT f_left,
-                                                                F_RIGHT f_right,
-                                                                F_VAL f_val) {
-  std::vector<std::vector<std::string>> treeStructure;
-  if (root == nullptr) {
-    return treeStructure;
-  }
-
-  std::vector<T*> currentLevel;
-  std::vector<T*> nextLevel;
-  currentLevel.push_back(root);
-
-  while (!currentLevel.empty()) {
-    std::vector<std::string> levelValues;
-
-    bool null = true;
-    for (const auto& node : currentLevel) {
-      if (node != nullptr) {
-        null = false;
-        break;
-      }
-    }
-    if (null == true) break;
-
-    for (const auto& node : currentLevel) {
-      if (node == nullptr) {
-        levelValues.push_back("NULL");
-        nextLevel.push_back(nullptr);
-        nextLevel.push_back(nullptr);
-        continue;
-      }
-      levelValues.push_back(std::to_string(f_val(node)));
-      nextLevel.push_back(f_left(node));
-      nextLevel.push_back((node->right));
-    }
-    treeStructure.push_back(levelValues);
-    currentLevel = nextLevel;
-    nextLevel.clear();
-  }
-
-  return treeStructure;
-}
-
-/* Example: 
- DrawTree(gxt::algorithm::CreateBinaryTreeStructure(root, [](Node* node){ return node->left; },
-      [](Node* node){ return node->right; },
-      [](Node* node){ return node->value; }));
-*/
-inline void DrawTree(const std::vector<std::vector<std::string>>& tree, size_t pad = 6,
-              size_t space = 2) {
-  for (size_t i = 0; i < tree.size(); i++) {
-    std::cout << std::string(pad * (tree.size() - i - 1), ' ');
-    for (const auto& val : tree.at(i)) {
-      std::cout << gxt::PadStringToDesignChars(val, pad)
-                << std::string(space, ' ');
-    }
-    std::cout << "\n";
-  }
-}
-}
-}
-
-#endif //DEBUGSTREAM_H__
-

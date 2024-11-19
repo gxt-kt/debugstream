@@ -1,0 +1,9 @@
+build/
+cmake-build*
+.cache
+.idea
+.vscode
+.cache
+*__pycache__*
+*.md-E
+*.log

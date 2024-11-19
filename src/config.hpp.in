@@ -1,0 +1,13 @@
+// Copyright (C) 2022-2024 gxt_kt contributors
+
+#ifndef MY_LIBRARY_IMPL_IN_CONFIG_HPP
+#error "do not include this file directly, use config.hpp"
+#endif
+
+#include <cstddef>
+
+//=== options ===//
+// clang-format off
+#cmakedefine01 MY_LIBRARY_IMPL_TEST1
+#define MY_LIBRARY_IMPL_TEST2 ${MY_LIBRARY_IMPL_TEST2}
+// clang-format on
