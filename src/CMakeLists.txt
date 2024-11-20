@@ -5,7 +5,7 @@ file(GLOB_RECURSE fmt_header "${header_path}/detail/fmt/*.h")
 # set(detail_header
 #     ${header_path}/detail/time.h
 # )
-PrintVariable(detail_header)
+# PrintVariable(detail_header)
 file(GLOB header "${header_path}/*.h")
 # set(header
 #     ${header_path}/debugstream.h

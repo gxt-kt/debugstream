@@ -2,7 +2,9 @@
 
 #include "../stdc++.h"
 
+namespace gxt {
 namespace detail {
+
 // Type Name Implement
 template <typename T>
 inline std::string TypeImpl() {
@@ -19,7 +21,9 @@ inline std::string TypeImpl() {
 #endif
   return str.substr(posi_start, posi_end - posi_start);
 }
+
 }  // namespace detail
+}  // namespace gxt
 
 #define G_TYPET(type) (gxt::detail::TypeImpl<type>())
 #define G_TYPE(type) (gxt::detail::TypeImpl<decltype(type)>())

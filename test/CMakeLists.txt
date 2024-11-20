@@ -1,6 +1,10 @@
 find_package(GTest REQUIRED)
 
-add_executable(test_main test_main.cc test_time.cc)
+add_executable(test_main
+               test_main.cc
+               test_time.cc
+               test_type.cc
+)
 target_include_directories(test_main PRIVATE
                             ${${PROJECT_NAME}_SOURCE_DIR}/include/debugstream
 )

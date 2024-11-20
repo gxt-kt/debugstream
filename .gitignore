@@ -6,4 +6,5 @@ cmake-build*
 .cache
 *__pycache__*
 *.md-E
+*.*-E
 *.log

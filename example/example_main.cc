@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
   std::cout << G_FILE_LINE << std::endl;
   std::cout << G_LINE << std::endl;
   std::cout << G_FILE << std::endl;
+  std::cout << G_TYPET(int) << std::endl;
   // int a = 10;
   // int b = 20;
   // MyDebugCol(a);
