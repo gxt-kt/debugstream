@@ -1,9 +1,6 @@
 #pragma once
 
 #include "../stdc++.h"
-#include <condition_variable>
-#include <atomic>
-#include <memory>
 
 template <typename T>
 class ThreadSafeQueue {
@@ -54,7 +51,7 @@ class ThreadSafeQueue {
   mutable std::mutex mtx_;
   std::condition_variable cv_;
 
-  std::atomic<bool> skip_pop_ = false;
+  std::atomic<bool> skip_pop_{false};
 };
 
 class G_LOG {
@@ -110,7 +107,7 @@ void inline DebugLog(const std::string& str) { __G_LOG_FILE__.log(str); }
 // clang-format off
 // #define gDebugColFun(col_fg,col_bg,func,...) ((gxt::DebugStream(func).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
 // #define gDebugLog(...) gDebugColFun(gxt::detail::normal_fg,gxt::detail::normal_bg,DebugLog,##__VA_ARGS__)
-#define gDebugLog(...) ((gxt::DebugStream(DebugLog).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__)) 
+#define gDebugLog(...) ((gxt::DebugStream(DebugLog).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
 
 // clang-format on
 // #define gDebugColLog(col_fg, col_bg, ...)             \
