@@ -22,12 +22,14 @@ set(src
 # configure config file
 configure_file("config.hpp.in" "${CMAKE_CURRENT_BINARY_DIR}/config_impl.hpp")
 
+find_package(Threads REQUIRED)
 add_library(${MY_LIB_NAME} SHARED ${detail_header} ${header} ${src})
+target_link_libraries(${MY_LIB_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(${MY_LIB_NAME}
                              PUBLIC
-                                $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include/mytest>
+                                $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include/debugstream>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # for generated files in build mode
-                                $<INSTALL_INTERFACE:${MY_LIBRARY_INC_INSTALL_DIR}/mytest> # for client in install mode
+                                $<INSTALL_INTERFACE:${MY_LIBRARY_INC_INSTALL_DIR}/debugstream> # for client in install mode
                              PRIVATE
                                 ${header_path} # for source files
 )

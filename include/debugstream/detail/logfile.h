@@ -1,6 +1,9 @@
 #pragma once
 
 #include "../stdc++.h"
+#include <condition_variable>
+#include <atomic>
+#include <memory>
 
 template <typename T>
 class ThreadSafeQueue {
@@ -51,7 +54,7 @@ class ThreadSafeQueue {
   mutable std::mutex mtx_;
   std::condition_variable cv_;
 
-  std::atomic_bool skip_pop_ = false;
+  std::atomic<bool> skip_pop_ = false;
 };
 
 class G_LOG {

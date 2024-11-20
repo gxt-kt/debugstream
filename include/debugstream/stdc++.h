@@ -48,13 +48,11 @@
 #include <vector>
 #ifdef __GNUG__
 #include <cxxabi.h>
-
-#include <cstdlib>
-#include <memory>
 #endif
 
 #include <chrono>
-#include <thread>
+#include <cstdlib>
+#include <atomic>
 
 // support c++17 variant and optional
 #define SUPPORTS_CPP17 (__cplusplus >= 201703L)
