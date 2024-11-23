@@ -16,6 +16,9 @@ set(src
     detail/time.cc
     detail/debugwaiting.cc
     detail/logfile.cc
+    detail/leetcode.cc
+    detail/leetcode_tree.cc
+    detail/leetcode_list.cc
 )
 
 

@@ -10,7 +10,7 @@ include(cmake/help.cmake)
 # define library version (update: apparently you can also do it in project()!)
 set(MY_LIBRARY_VERSION_MAJOR 3 CACHE STRING "major version" FORCE)
 set(MY_LIBRARY_VERSION_MINOR 1 CACHE STRING "minor version" FORCE)
-set(MY_LIBRARY_VERSION_PATCH 3 CACHE STRING "patch version" FORCE)
+set(MY_LIBRARY_VERSION_PATCH 4 CACHE STRING "patch version" FORCE)
 set(MY_LIBRARY_VERSION ${MY_LIBRARY_VERSION_MAJOR}.${MY_LIBRARY_VERSION_MINOR}.${MY_LIBRARY_VERSION_PATCH} CACHE STRING "version" FORCE)
 PrintVariable(MY_LIBRARY_VERSION)
 

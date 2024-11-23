@@ -108,11 +108,4 @@ void inline DebugLog(const std::string& str) { __G_LOG_FILE__.log(str); }
 // #define gDebugColFun(col_fg,col_bg,func,...) ((gxt::DebugStream(func).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
 // #define gDebugLog(...) gDebugColFun(gxt::detail::normal_fg,gxt::detail::normal_bg,DebugLog,##__VA_ARGS__)
 #define gDebugLog(...) ((gxt::DebugStream(DebugLog).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-
 // clang-format on
-// #define gDebugColLog(col_fg, col_bg, ...)             \
-// #define gDebugColLog(col_fg, col_bg, ...)             \
-//   ((gxt::DebugStream(DebugLog).NewLine().ClearColor() \
-//     << col_fg << col_bg)(#__VA_ARGS__ __VA_OPT__(, ) __VA_ARGS__))
-// #define gDebugLog(...) \
-//   gDebugColLog(gxt::black_fg, gxt::yellow_bg, ##__VA_ARGS__)

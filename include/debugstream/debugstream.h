@@ -28,7 +28,6 @@
 #include "definehelper.h"
 
 #include "detail/time.h"
-#include "detail/leetcode.h"
 #include "detail/debugwaiting.h"
 #include "detail/random.h"
 #include "detail/logfile.h"
@@ -37,6 +36,9 @@
 #include "detail/type.h"
 #include "detail/color.h"
 #include "detail/enum.h"
+#include "detail/leetcode.h"
+#include "detail/leetcode_tree.h"
+#include "detail/leetcode_list.h"
 
 #define MY_LIB_VERSION TO_STRING(MY_LIBRARY_VERSION)
 #define MY_LIB_VERSION_MAJOR MY_LIBRARY_VERSION
