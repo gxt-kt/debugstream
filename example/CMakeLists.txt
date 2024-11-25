@@ -14,6 +14,7 @@ set(SOURCE_EXAMPLE_FILES
   example_leetcode.cc
   example_main.cc
   example_type.cc
+  example_singleton.cc
 )
 
 # 使用 foreach 遍历源文件并将它们添加到可执行目标中
