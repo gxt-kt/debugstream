@@ -973,7 +973,8 @@ class DebugStream {
     if (!this->out_en_) {
       return *this;
     }
-    func_(str);
+    // func_(str);
+    output_ << str;
     return *this;
   }
   DebugStream &printf(const char *fmt, ...);
@@ -1029,6 +1030,7 @@ class DebugStream {
   bool clear_color_{false}; // if true will clear color when deconstruct object
  private:
   std::stringstream pprint_stream;
+  std::stringstream output_;
   pprint::PrettyPrinter pp;
 };
 
@@ -1040,6 +1042,9 @@ inline DebugStream::~DebugStream() {
   }
   if(clear_color_) (*this)<<detail::normal_fg<<detail::normal_bg; 
   if(newline) (*this)("\n"); // send a "\n"
+  
+  // real output
+  func_(output_.str());
 }
 
 inline DebugStream& DebugStream::printf(const char* fmt, ...) {

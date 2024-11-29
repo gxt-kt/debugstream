@@ -17,5 +17,14 @@ inline unsigned int GetHardwareConcurrency() {
   return num_threads;
 }
 
+#define __param_name(name, line) name##line
+#define _param_name(name, line) __param_name(name, line)
+#define param_name_line(name) _param_name(name, __LINE__)
+
+// 定义一个辅助宏以拼接行号
+#define CALL_ONCE(...)                               \
+  static std::once_flag param_name_line(once_flag_); \
+  std::call_once(param_name_line(once_flag_) __VA_OPT__(, ) __VA_ARGS__);
+
 }  // namespace thread
 }  // namespace gxt
