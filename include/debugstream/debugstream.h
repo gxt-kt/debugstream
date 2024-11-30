@@ -41,6 +41,7 @@
 #include "detail/leetcode_list.h"
 #include "detail/thread.h"
 #include "detail/singleton.h"
+#include "detail/filename.h"
 
 #define MY_LIB_VERSION TO_STRING(MY_LIBRARY_VERSION)
 #define MY_LIB_VERSION_MAJOR MY_LIBRARY_VERSION
