@@ -14,7 +14,7 @@ set(MY_LIBRARY_VERSION_PATCH 5 CACHE STRING "patch version" FORCE)
 set(MY_LIBRARY_VERSION ${MY_LIBRARY_VERSION_MAJOR}.${MY_LIBRARY_VERSION_MINOR}.${MY_LIBRARY_VERSION_PATCH} CACHE STRING "version" FORCE)
 PrintVariable(MY_LIBRARY_VERSION)
 
-set(CMAKE_BUILD_TYPE Release) # Debug Release RelWithDebInfo
+option(CMAKE_BUILD_TYPE Release) # Debug Release RelWithDebInfo
 # set a debug postfix
 set(CMAKE_DEBUG_POSTFIX "-dbg")
 

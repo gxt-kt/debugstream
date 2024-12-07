@@ -92,7 +92,7 @@ class WriteToFile : public G_LOG {
 class Logger {
  public:
   Logger(bool if_write_to_cout = true, bool if_write_to_file = false,
-         const std::string& file_name = "");
+         const std::string& file_name = "", bool filename_add_data = true);
   void log(const std::string& str) const;
   void log(char* ptr, size_t size) const;
 
@@ -100,12 +100,18 @@ class Logger {
   std::set<std::shared_ptr<G_LOG>> funs_;
 };
 
-extern Logger __G_LOG_FILE__;
+extern Logger __G_COUT;
+extern Logger __G_LOG;
+extern Logger __G_LOG_COUT;
 
-void inline DebugLog(const std::string& str) { __G_LOG_FILE__.log(str); }
+void inline __DebugCout(const std::string& str) { __G_COUT.log(str); }
+void inline __DebugLog(const std::string& str) { __G_LOG.log(str); }
+void inline __DebugLogCout(const std::string& str) { __G_LOG_COUT.log(str); }
 
 // clang-format off
 // #define gDebugColFun(col_fg,col_bg,func,...) ((gxt::DebugStream(func).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
 // #define gDebugLog(...) gDebugColFun(gxt::detail::normal_fg,gxt::detail::normal_bg,DebugLog,##__VA_ARGS__)
-#define gDebugLog(...) ((gxt::DebugStream(DebugLog).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugCout(...) ((gxt::DebugStream(__DebugCout).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugLog(...) ((gxt::DebugStream(__DebugLog).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugLogCout(...) ((gxt::DebugStream(__DebugLogCout).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
 // clang-format on

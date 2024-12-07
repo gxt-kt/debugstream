@@ -17,6 +17,7 @@ set(SOURCE_EXAMPLE_FILES
   example_singleton.cc
   example_debugwait.cc
   example_filename.cc
+  example_logfile.cc
 )
 
 # 使用 foreach 遍历源文件并将它们添加到可执行目标中

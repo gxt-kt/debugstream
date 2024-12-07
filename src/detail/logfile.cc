@@ -1,5 +1,7 @@
 #include "detail/logfile.h"
 
+#include "detail/filename.h"
+
 WriteToFile::WriteToFile(const std::string& filename) {
   if (filename.empty()) {
     // TODO: tell user to set filename;
@@ -36,13 +38,17 @@ void WriteToFile::ProcessQueue() {
 }
 
 Logger::Logger(bool if_write_to_cout, bool if_write_to_file,
-               const std::string& file_name) {
+               const std::string& file_name, bool filename_add_data) {
   if (if_write_to_cout) {
     auto write_to_cout = std::make_shared<WriteToCout>();
     funs_.insert(write_to_cout);
   }
   if (if_write_to_file) {
-    auto write_to_file = std::make_shared<WriteToFile>(file_name);
+    auto write_file_name = file_name;
+    if (filename_add_data) {
+      write_file_name = gxt::filename::GetFilePathWithData(write_file_name);
+    }
+    auto write_to_file = std::make_shared<WriteToFile>(write_file_name);
     funs_.insert(write_to_file);
   }
 }
@@ -55,6 +61,6 @@ void Logger::log(const std::string& str) const {
 
 void Logger::log(char* ptr, size_t size) const { log(std::string(ptr, size)); }
 
-Logger __G_LOG_COUT__(true, true, "log.log");
-Logger __G_LOG_FILE__(false, true, "log.log");
-Logger __G_LOG_COUT_FILE__(true, true, "log.log");
+Logger __G_COUT(true, false);
+Logger __G_LOG(false, true, "log.log");
+Logger __G_LOG_COUT(true, true, "log_cout.log");
