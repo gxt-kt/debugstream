@@ -1,8 +1,10 @@
 #pragma once
 
 #include "../stdc++.h"
+#include "detail/filename.h"
 
 namespace gxt {
+namespace log {
 
 template <typename T>
 class ThreadSafeQueue {
@@ -102,31 +104,41 @@ class Logger {
   std::set<std::shared_ptr<G_LOG>> funs_;
 };
 
+}  // namespace log
 }  // namespace gxt
 
 namespace gxt {
-namespace logfile {
+namespace log {
 
 inline void __DebugCout(const std::string& str) {
-  static gxt::Logger log(true, false);
+  static gxt::log::Logger log(true, false);
   log.log(str);
 }
 inline void __DebugLog(const std::string& str) {
-  static gxt::Logger log(false, true, "log.log", true);
+  static auto exec_path = gxt::filename::GetExecutableName();
+  std::cout << "exec_path" << exec_path << std::endl;
+  static auto exec_name =
+      gxt::filename::ExtractPathComponents(exec_path).basename;
+  std::cout << "exec_name" << exec_name << std::endl;
+  static auto logfile_name = exec_name + ".log";
+  std::cout << "logfile_name" << logfile_name << std::endl;
+  static gxt::log::Logger log(false, true, logfile_name, false);
   log.log(str);
 }
 inline void __DebugLogCout(const std::string& str) {
-  static gxt::Logger log(true, true, "log_cout.log", true);
+  static gxt::log::Logger log(true, true, "log_cout.log", true);
   log.log(str);
 }
 
-}  // namespace logfile
+}  // namespace log
 }  // namespace gxt
 
 // clang-format off
-// #define gDebugColFun(col_fg,col_bg,func,...) ((gxt::DebugStream(func).NewLine().ClearColor()<<col_fg<<col_bg)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-// #define gDebugLog(...) gDebugColFun(gxt::detail::normal_fg,gxt::detail::normal_bg,DebugLog,##__VA_ARGS__)
-#define gDebugCout(...) ((gxt::DebugStream(gxt::logfile::__DebugCout).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugLog(...) ((gxt::DebugStream(gxt::logfile::__DebugLog).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
-#define gDebugLogCout(...) ((gxt::DebugStream(gxt::logfile::__DebugLogCout).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugCout(...) ((gxt::DebugStream(gxt::log::__DebugCout).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugLog(...) ((gxt::DebugStream(gxt::log::__DebugLog).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugLogCout(...) ((gxt::DebugStream(gxt::log::__DebugLogCout).NewLine()<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+
+#define gDebugLogCol(col_fg,col_bg,func,...) ((gxt::DebugStream(func).NewLine().ClearColor()<<col_fg<<col_bg<<gxt::GetCurrentTime()<<G_FILE_LINE)(#__VA_ARGS__ __VA_OPT__(,) __VA_ARGS__))
+#define gDebugLogWarn(...) gDebugLogCol(gxt::detail::black_fg,gxt::detail::yellow_bg,gxt::log::__DebugLog,##__VA_ARGS__)
+
 // clang-format on

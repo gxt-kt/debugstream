@@ -5,6 +5,7 @@ add_executable(test_main
                test_time.cc
                test_type.cc
                test_thread.cc
+               test_filename.cc
 )
 target_include_directories(test_main PRIVATE
                             ${${PROJECT_NAME}_SOURCE_DIR}/include

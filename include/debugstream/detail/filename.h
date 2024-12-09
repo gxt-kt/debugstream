@@ -5,22 +5,28 @@
 namespace gxt {
 namespace filename {
 
+// 获取完整文件名 例如 /home/abc/def/xyz.cc
 #define G_GET_FILE_PATH() __FILE__
 
-#define G_GET_FILE_FILENAME()                                   \
-  []() -> std::string {                                         \
-    std::string full_path = __FILE__;                           \
-    return full_path.substr(full_path.find_last_of("/\\") + 1); \
+// 获取去除掉路径的文件名 例如 xyz.cc
+#define G_GET_FILE_FILENAME()                                        \
+  []() -> std::string {                                              \
+    std::string full_path = G_GET_FILE_PATH();                       \
+    return gxt::filename::ExtractPathComponents(full_path).filename; \
   }()
 
-#define G_GET_FILE_BASENAME()                                      \
-  []() -> std::string {                                            \
-    std::string file_name = G_GET_FILE_FILENAME();                 \
-    std::string::size_type position = file_name.find_last_of('.'); \
-    if (position != std::string::npos) {                           \
-      file_name = file_name.substr(0, position);                   \
-    }                                                              \
-    return file_name;                                              \
+// 获取去除掉路径和后缀的文件名 例如 xyz
+#define G_GET_FILE_BASENAME()                                        \
+  []() -> std::string {                                              \
+    std::string full_path = G_GET_FILE_FILENAME();                   \
+    return gxt::filename::ExtractPathComponents(full_path).basename; \
+  }()
+
+// 获取路径和后缀的文件名 例如 /home/abc/def
+#define G_GET_FILE_DIRECTORY()                                        \
+  []() -> std::string {                                               \
+    std::string full_path = G_GET_FILE_FILENAME();                    \
+    return gxt::filename::ExtractPathComponents(full_path).directory; \
   }()
 
 // 获取当前时间，格式化为 YYYY-MM-DDTHH:MM:SS
@@ -58,6 +64,97 @@ inline std::string GetFilePathWithData(const std::string &originalPath) {
 
   std::string timeStamp = GetCurrentTime();
   return directory + baseName + "_" + timeStamp + extension;
+}
+
+struct PathComponents {
+  std::string filename;
+  std::string basename;
+  std::string directory;
+  std::string extension;
+};
+
+/*
+ * 把路径提取出对应的名字
+ * exmaple：input "/home/abc/def/xyz.cc"
+ * filename: "xyz.cc"
+ * basename: "xyz"
+ * directory: "/home/abc/def"
+ * extension: "cc"
+ *
+ *
+ */
+inline PathComponents ExtractPathComponents(const std::string &original_path) {
+  PathComponents components;
+  std::string::size_type pos = original_path.find_last_of("/\\");
+  std::string::size_type ext_pos = original_path.rfind('.');
+
+  // Trim leading and trailing whitespaces from the path
+  std::string trimmed_path = original_path;
+  trimmed_path.erase(0, trimmed_path.find_first_not_of(" \t\n\r"));
+  trimmed_path.erase(trimmed_path.find_last_not_of(" \t\n\r") + 1);
+
+  // If the trimmed path is empty, set all components to empty and return
+  if (trimmed_path.empty()) {
+    return components;
+  }
+
+  // Handle the case where there is no directory
+  if ((pos = trimmed_path.find_last_of("/\\")) == std::string::npos) {
+    pos = 0;  // Set pos to 0 for relative paths without directory
+  } else {
+    // Include the '/' or '\' in the directory
+    pos += 1;
+  }
+
+  // Handle the case where there is no extension
+  if (ext_pos == std::string::npos || ext_pos < pos) {
+    ext_pos = trimmed_path.length();
+  }
+
+  // Extract the directory
+  if (pos > 0) {  // Only set directory if pos > 0 to avoid leading slash
+    components.directory = trimmed_path.substr(0, pos - 1);
+  }
+
+  // Extract the filename
+  components.filename = trimmed_path.substr(pos);
+
+  // Extract the basename and extension
+  std::string::size_type dot_pos =
+      ext_pos > pos ? ext_pos : trimmed_path.length();
+  components.basename = trimmed_path.substr(pos, dot_pos - pos);
+  components.extension =
+      dot_pos < trimmed_path.length() ? trimmed_path.substr(dot_pos + 1) : "";
+
+  return components;
+}
+
+#ifdef _WIN32
+#include <string.h>  // For strlen
+#include <windows.h>
+#else
+
+#include <limits.h>
+#include <unistd.h>
+#undef basename
+#include <libgen.h>  // For basename
+#endif
+
+inline std::string GetExecutableName() {
+#ifdef _WIN32
+  char path[MAX_PATH];
+  GetModuleFileNameA(nullptr, path, MAX_PATH);
+  return std::string(path);  // 可能需要进一步处理
+#else
+  char path[PATH_MAX];
+  ssize_t count = readlink("/proc/self/exe", path, PATH_MAX);
+  if (count != -1) {
+    path[count] = '\0';                  // 确保字符串以 null 结尾
+    return std::string(basename(path));  // 提取文件名
+  }
+  return "";
+#undef basename
+#endif
 }
 
 }  // namespace filename
