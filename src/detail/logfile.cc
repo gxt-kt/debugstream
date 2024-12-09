@@ -2,6 +2,8 @@
 
 #include "detail/filename.h"
 
+namespace gxt {
+
 WriteToFile::WriteToFile(const std::string& filename) {
   if (filename.empty()) {
     // TODO: tell user to set filename;
@@ -61,6 +63,4 @@ void Logger::log(const std::string& str) const {
 
 void Logger::log(char* ptr, size_t size) const { log(std::string(ptr, size)); }
 
-Logger __G_COUT(true, false);
-Logger __G_LOG(false, true, "log.log");
-Logger __G_LOG_COUT(true, true, "log_cout.log");
+}  // namespace gxt
