@@ -116,12 +116,12 @@ inline void __DebugCout(const std::string& str) {
 }
 inline void __DebugLog(const std::string& str) {
   static auto exec_path = gxt::filename::GetExecutableName();
-  std::cout << "exec_path" << exec_path << std::endl;
+  // std::cout << "exec_path:" << exec_path << std::endl;
   static auto exec_name =
       gxt::filename::ExtractPathComponents(exec_path).basename;
-  std::cout << "exec_name" << exec_name << std::endl;
+  // std::cout << "exec_name:" << exec_name << std::endl;
   static auto logfile_name = exec_name + ".log";
-  std::cout << "logfile_name" << logfile_name << std::endl;
+  // std::cout << "logfile_name:" << logfile_name << std::endl;
   static gxt::log::Logger log(false, true, logfile_name, false);
   log.log(str);
 }

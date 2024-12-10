@@ -129,23 +129,21 @@ inline PathComponents ExtractPathComponents(const std::string &original_path) {
   return components;
 }
 
+// GetExecutableName
 #ifdef _WIN32
 #include <string.h>  // For strlen
 #include <windows.h>
-#else
-
+inline std::string GetExecutableName() {
+  char path[MAX_PATH];
+  GetModuleFileNameA(nullptr, path, MAX_PATH);
+  return std::string(path);  // 可能需要进一步处理
+}
+#elif __linux__
 #include <limits.h>
 #include <unistd.h>
 #undef basename
 #include <libgen.h>  // For basename
-#endif
-
 inline std::string GetExecutableName() {
-#ifdef _WIN32
-  char path[MAX_PATH];
-  GetModuleFileNameA(nullptr, path, MAX_PATH);
-  return std::string(path);  // 可能需要进一步处理
-#else
   char path[PATH_MAX];
   ssize_t count = readlink("/proc/self/exe", path, PATH_MAX);
   if (count != -1) {
@@ -154,8 +152,24 @@ inline std::string GetExecutableName() {
   }
   return "";
 #undef basename
-#endif
 }
+#elif __APPLE__
+#include <limits.h>
+#include <unistd.h>
+#undef basename
+#include <libgen.h>       // For basename
+#include <mach-o/dyld.h>  // For _NSGetExecutablePath
+inline std::string GetExecutableName() {
+  char path[PATH_MAX];
+  uint32_t size = sizeof(path);
+  if (_NSGetExecutablePath(path, &size) == 0) {
+    return std::string(basename(path));  // 提取文件名
+  }
+  return "";
+}
+#undef basename
+#else
+#endif
 
 }  // namespace filename
 }  // namespace gxt

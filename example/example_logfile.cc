@@ -11,7 +11,7 @@ void Test(int cnt = 1000) {
 
 namespace test02 {
 void Test(int cnt = 1000) {
-  gDebug() << "gDebugLog";
+  gDebug() << "gDebugCout";
   while (cnt--) {
     gDebugCout() << VAR(cnt);
   }
@@ -20,7 +20,7 @@ void Test(int cnt = 1000) {
 
 namespace test03 {
 void Test(int cnt = 1000) {
-  gDebug() << "gDebugLog";
+  gDebug() << "gDebugLogCout";
   while (cnt--) {
     gDebugLogCout() << VAR(cnt);
   }
@@ -76,9 +76,19 @@ void Test(int cnt = 1000) {
 }  // namespace test06
 
 int main(int argc, char* argv[]) {
-  test01::Test();
-  test02::Test();
-  test03::Test();
+  const int cnt = 100;
+  {
+    TIME_BEGIN(test01);
+    test01::Test(cnt);
+  }
+  {
+    TIME_BEGIN(test02);
+    test02::Test(cnt);
+  }
+  {
+    TIME_BEGIN(test03);
+    test03::Test(cnt);
+  }
   {
     // wait write to file completely
     gxt::Sleep(3);
