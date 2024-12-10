@@ -28,4 +28,5 @@ foreach(SOURCE_EXAMPLE ${SOURCE_EXAMPLE_FILES})
                             ${${PROJECT_NAME}_SOURCE_DIR}/include
     )
     target_link_libraries(${EXEC} PRIVATE ${MY_LIB_NAME})
+    target_link_libraries(${EXEC} PRIVATE pthread)
 endforeach()
