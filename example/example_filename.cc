@@ -13,5 +13,6 @@ int main(int argc, char *argv[]) {
   std::cout << gxt::filename::GetFilePathWithData("/123") << std::endl;
   std::cout << gxt::filename::GetFilePathWithData("/123/567") << std::endl;
   // clang-format on
+  std::cout << gxt::filename::GetExecutableName() << std::endl;
   return 0;
 }

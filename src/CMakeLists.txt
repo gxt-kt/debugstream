@@ -19,6 +19,7 @@ set(src
     detail/leetcode.cc
     detail/leetcode_tree.cc
     detail/leetcode_list.cc
+    detail/filename.cc
 )
 
 
