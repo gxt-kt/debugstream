@@ -11,8 +11,9 @@
 # target_link_libraries(example_leetcode PRIVATE ${MY_LIB_NAME})
 
 set(SOURCE_EXAMPLE_FILES
-  example_leetcode.cc
+  example_test.cc
   example_main.cc
+  example_leetcode.cc
   example_type.cc
   example_singleton.cc
   example_debugwait.cc

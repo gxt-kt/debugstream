@@ -1036,16 +1036,16 @@ class DebugStream {
 };
 
 inline DebugStream::~DebugStream() {
-  if (terminate_) {
-    (*this) << detail::normal_fg << detail::normal_bg;  // mandatory clear the color
-    (*this)("\n");  // mandatory put a new line in case the error not output
-    std::terminate();
-  }
   if(clear_color_) (*this)<<detail::normal_fg<<detail::normal_bg; 
   if(newline) (*this)("\n"); // send a "\n"
   
   // real output
   func_(output_.str());
+  if (terminate_) {
+    // (*this) << detail::normal_fg << detail::normal_bg;  // mandatory clear the color
+    // (*this)("\n");  // mandatory put a new line in case the error not output
+    std::terminate();
+  }
 }
 
 inline DebugStream& DebugStream::printf(const char* fmt, ...) {
