@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../stdc++.h"
-#include "detail/filename.h"
+#include "./filename.h"
 
 namespace gxt {
 namespace log {
