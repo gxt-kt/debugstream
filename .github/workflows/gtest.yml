@@ -48,7 +48,7 @@ jobs:
           brew install cmake 
           git clone -b v1.15.x --depth=1 https://github.com/google/googletest
           cd googletest
-          cmake .. -DBUILD_GTEST=ON -DBUILD_SHARED_LIBS=ON
+          cmake -DBUILD_GTEST=ON -DBUILD_SHARED_LIBS=ON -S. -Bbuild
           cmake --build build -j
           sudo cmake --install build
 
