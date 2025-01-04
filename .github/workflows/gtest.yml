@@ -1,0 +1,39 @@
+name: C++ GTest Build and Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master 
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 检查代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 设置 C++ 环境
+      - name: Setup C++ environment
+        uses: actions/setup-cpp@v2
+        with:
+          compiler: gcc # 或者 clang，根据你的需求选择
+
+      # 安装必要的依赖
+      # - name: Install dependencies
+      #   run: sudo apt-get update && sudo apt-get install -y cmake g++ make
+
+      # 配置和构建项目
+      - name: Configure and Build
+        run: |
+          cmake -S. -Bbuild
+          cmake --build build -j
+
+      # 运行 gtest 测试
+      - name: Run GTest Tests
+        run: |
+          ./build/test/test_main
