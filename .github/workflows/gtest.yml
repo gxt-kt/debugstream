@@ -17,8 +17,9 @@ jobs:
       matrix:
         os:
           # - windows-2022
-          - ubuntu-24.04
-          - macos-14 # arm64
+          - ubuntu-latest
+          - ubuntu-18.04
+          - macos-latest # arm64
           - macos-13
         compiler:
           - llvm
@@ -43,7 +44,7 @@ jobs:
       # 安装必要的依赖（仅适用于 macOS）
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
-        run: brew install cmake gtest
+        run: brew install cmake googletest 
 
       # 配置和构建项目
       - name: Configure and Build
