@@ -22,7 +22,7 @@ jobs:
           - macos-latest # arm64
           - macos-13
         compiler:
-          - clang
+          - llvm
         # include: # 添加特定条件
         #   - os: ubuntu-latest
         #     compiler: gcc
@@ -61,6 +61,10 @@ jobs:
           # 检查版本是否大于等于 14
           if [ "$major_version" -ge 14 ]; then
             brew install llvm
+            # add llvm lib
+            export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+            export LDFLAGS=" -L/opt/homebrew/opt/Llvm/lib"
+            export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
           fi
           git clone -b v1.15.x --depth=1 https://github.com/google/googletest
           cd googletest
