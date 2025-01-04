@@ -23,7 +23,7 @@ jobs:
           - macos-13
         compiler:
           - llvm
-        # include: # 添加特定条件
+        include: # 添加特定条件
           - os: ubuntu-latest
             compiler: gcc
           - os: ubuntu-latest
