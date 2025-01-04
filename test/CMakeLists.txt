@@ -11,5 +11,5 @@ target_include_directories(test_main PRIVATE
                             ${${PROJECT_NAME}_SOURCE_DIR}/include
 )
 target_link_libraries(test_main PRIVATE ${MY_LIB_NAME})
-target_link_libraries(test_main PRIVATE gtest)
+target_link_libraries(test_main PRIVATE GTest::gtest GTest::gtest_main)
 target_link_libraries(test_main PRIVATE pthread)
