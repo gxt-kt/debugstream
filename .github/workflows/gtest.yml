@@ -18,16 +18,20 @@ jobs:
         os:
           # - windows-2022
           - ubuntu-latest
-          - ubuntu-18.04
+          - ubuntu-20.04
           - macos-latest # arm64
           - macos-13
         compiler:
           - clang
         include: # 添加特定条件
           - os: ubuntu-latest
-            compiler: [gcc, gcc-9]
+            compiler: gcc
+          - os: ubuntu-latest
+            compiler: gcc-9
           - os: ubuntu-20.04
-            compiler: [gcc, gcc-9]
+            compiler: gcc
+          - os: ubuntu-20.04
+            compiler: gcc-9
 
     steps:
       # 检查代码
