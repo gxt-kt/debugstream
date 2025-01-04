@@ -123,7 +123,7 @@ inline std::string PrintTree2(T* node, F_LEFT f_left, F_RIGHT f_right,
   size_t max_depth = 0;
   {
     // get maxdepth
-    std::queue<TreeNode*> que;
+    std::queue<T*> que;
     size_t depth = 0;
     que.push(node);
     while (que.size()) {
@@ -145,7 +145,7 @@ inline std::string PrintTree2(T* node, F_LEFT f_left, F_RIGHT f_right,
       s[i].resize(((1 << max_depth) - 1) * width);
       for (char& c : s[i]) c = ' ';
     }
-    std::queue<std::pair<std::pair<TreeNode*, int>, int>> Q;
+    std::queue<std::pair<std::pair<T*, int>, int>> Q;
     int row = 0, arm = (1 << max_depth) / 4;
     Q.push(make_pair(std::make_pair(node, ((1 << max_depth) - 1) / 2), 0));
     while (Q.size()) {
@@ -153,7 +153,7 @@ inline std::string PrintTree2(T* node, F_LEFT f_left, F_RIGHT f_right,
       while (l--) {
         auto p = Q.front();
         Q.pop();
-        std::string temp = std::to_string(p.first.first->val);
+        std::string temp = std::to_string(f_val(p.first.first));
         int rr = (width - temp.size()) / 2;
         int ll = width - temp.size() - rr;
         for (int i = ll; temp[i - ll]; i++)
