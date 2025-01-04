@@ -17,21 +17,21 @@ jobs:
       matrix:
         os:
           # - windows-2022
-          # - ubuntu-latest
-          # - ubuntu-20.04
+          - ubuntu-latest
+          - ubuntu-20.04
           - macos-latest # arm64
           - macos-13
         compiler:
           - llvm
         # include: # 添加特定条件
-        #   - os: ubuntu-latest
-        #     compiler: gcc
-        #   - os: ubuntu-latest
-        #     compiler: gcc-9
-        #   - os: ubuntu-20.04
-        #     compiler: gcc
-        #   - os: ubuntu-20.04
-        #     compiler: gcc-9
+          - os: ubuntu-latest
+            compiler: gcc
+          - os: ubuntu-latest
+            compiler: gcc-9
+          - os: ubuntu-20.04
+            compiler: gcc
+          - os: ubuntu-20.04
+            compiler: gcc-9
 
     steps:
       # 检查代码
@@ -40,7 +40,7 @@ jobs:
 
       # 设置 C++ 环境
       - name: Setup C++ environment
-        uses: aminya/setup-cpp@v1
+        uses: aminya/setup-cpp@master
         with:
           compiler: ${{ matrix.compiler }}
 
@@ -52,23 +52,22 @@ jobs:
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install cmake 
           # 获取 macOS 版本号
-          version=$(sw_vers -productVersion)
+          # version=$(sw_vers -productVersion)
           # 提取主版本号
-          major_version=$(echo "$version" | cut -d '.' -f 1)
-          echo "major_version=${major_version}"
+          # major_version=$(echo "$version" | cut -d '.' -f 1)
+          # echo "major_version=${major_version}"
           # 检查版本是否大于等于 14
-          if [ "$major_version" -ge 14 ]; then
-            brew install llvm
-            # add llvm lib
-            export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
-            export LDFLAGS=" -L/opt/homebrew/opt/Llvm/lib"
-            export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
-            # change c/cxx compile
-            export CC="/opt/homebrew/opt/llvm/bin/clang"
-            export CXX="/opt/homebrew/opt/llvm/bin/clang++"
-          fi
+          # if [ "$major_version" -ge 14 ]; then
+          #   brew install llvm
+          #   # add llvm lib
+          #   export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
+          #   export LDFLAGS=" -L/opt/homebrew/opt/Llvm/lib"
+          #   export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+          #   # change c/cxx compile
+          #   export CC="/opt/homebrew/opt/llvm/bin/clang"
+          #   export CXX="/opt/homebrew/opt/llvm/bin/clang++"
+          # fi
           git clone -b v1.15.x --depth=1 https://github.com/google/googletest
           cd googletest
           cmake -DBUILD_GTEST=ON -DBUILD_SHARED_LIBS=ON -S. -Bbuild
