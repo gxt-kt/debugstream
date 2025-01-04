@@ -44,7 +44,14 @@ jobs:
       # 安装必要的依赖（仅适用于 macOS）
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
-        run: brew install cmake googletest 
+        run: |
+          brew install cmake 
+          git clone -b v1.15.x https://github.com/google/googletest
+          cd googletest
+          mkdir build && cd build
+          cmake ..
+          make
+          sudo make install
 
       # 配置和构建项目
       - name: Configure and Build
