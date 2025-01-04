@@ -22,7 +22,7 @@ jobs:
           - macos-latest # arm64
           - macos-13
         compiler:
-          - llvm
+          - clang
           - gcc
           - gcc-9
 
