@@ -19,13 +19,13 @@ jobs:
 
       # 设置 C++ 环境
       - name: Setup C++ environment
-        uses: actions/setup-cpp@v2
+        uses: aminya/setup-cpp@v1
         with:
           compiler: gcc # 或者 clang，根据你的需求选择
 
       # 安装必要的依赖
-      # - name: Install dependencies
-      #   run: sudo apt-get update && sudo apt-get install -y cmake g++ make
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ make libgtest-dev
 
       # 配置和构建项目
       - name: Configure and Build
