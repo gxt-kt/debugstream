@@ -22,7 +22,7 @@ jobs:
           - macos-latest # arm64
           - macos-13
         compiler:
-          - llvm
+          - llvm-19
         # include: # 添加特定条件
         #   - os: ubuntu-latest
         #     compiler: gcc
@@ -65,6 +65,9 @@ jobs:
             export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
             export LDFLAGS=" -L/opt/homebrew/opt/Llvm/lib"
             export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
+            # change c/cxx compile
+            export CC="/opt/homebrew/opt/llvm/bin/clang"
+            export CXX="/opt/homebrew/opt/llvm/bin/clang++"
           fi
           git clone -b v1.15.x --depth=1 https://github.com/google/googletest
           cd googletest
