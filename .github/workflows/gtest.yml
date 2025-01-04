@@ -24,7 +24,9 @@ jobs:
         compiler:
           - clang
         include: # 添加特定条件
-          - os: [ubuntu-latest, ubuntu-18.04]
+          - os: ubuntu-latest
+            compiler: [gcc, gcc-9]
+          - os: ubuntu-20.04
             compiler: [gcc, gcc-9]
 
     steps:
@@ -47,15 +49,20 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           brew install cmake 
+          # 获取 macOS 版本号
+          version=$(sw_vers -productVersion)
+          # 提取主版本号
+          major_version=$(echo "$version" | cut -d '.' -f 1)
+          echo "major_version=${major_version}"
+          # 检查版本是否大于等于 15
+          if [ "$major_version" -ge 15 ]; then
+            brew upgrade llvm
+          fi
           git clone -b v1.15.x --depth=1 https://github.com/google/googletest
           cd googletest
           cmake -DBUILD_GTEST=ON -DBUILD_SHARED_LIBS=ON -S. -Bbuild
           cmake --build build -j
           sudo cmake --install build
-      - name: Upgrade LLVM (macOS latest only)
-        if: matrix.os == 'macos-latest'
-        run: |
-          brew upgrade llvm
 
       # 配置和构建项目
       - name: Configure and Build
