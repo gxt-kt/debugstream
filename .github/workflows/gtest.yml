@@ -24,7 +24,11 @@ jobs:
         compiler:
           - clang
           - gcc
-          - gcc-9
+      include: # 添加特定条件
+        - os: ubuntu-latest
+          compiler: gcc-9
+        - os: ubuntu-18.04
+          compiler: gcc-9
 
     steps:
       # 检查代码
