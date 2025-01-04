@@ -10,7 +10,20 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          # - windows-2022
+          - ubuntu-24.04
+          - macos-14 # arm64
+          - macos-13
+        compiler:
+          - llvm
+          - gcc
+          - gcc-9
 
     steps:
       # 检查代码
@@ -21,11 +34,16 @@ jobs:
       - name: Setup C++ environment
         uses: aminya/setup-cpp@v1
         with:
-          compiler: gcc # 或者 clang，根据你的需求选择
+          compiler: ${{ matrix.compiler }}
 
-      # 安装必要的依赖
-      - name: Install dependencies
+      # 安装必要的依赖（仅适用于 Linux）
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y cmake g++ make libgtest-dev
+      # 安装必要的依赖（仅适用于 macOS）
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: brew install cmake gtest
 
       # 配置和构建项目
       - name: Configure and Build
