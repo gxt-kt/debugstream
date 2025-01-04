@@ -22,7 +22,7 @@ jobs:
           - macos-latest # arm64
           - macos-13
         compiler:
-          - llvm-19
+          - llvm
         # include: # 添加特定条件
         #   - os: ubuntu-latest
         #     compiler: gcc
