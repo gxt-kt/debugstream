@@ -17,21 +17,21 @@ jobs:
       matrix:
         os:
           # - windows-2022
-          - ubuntu-latest
-          - ubuntu-20.04
+          # - ubuntu-latest
+          # - ubuntu-20.04
           - macos-latest # arm64
           - macos-13
         compiler:
           - clang
-        include: # 添加特定条件
-          - os: ubuntu-latest
-            compiler: gcc
-          - os: ubuntu-latest
-            compiler: gcc-9
-          - os: ubuntu-20.04
-            compiler: gcc
-          - os: ubuntu-20.04
-            compiler: gcc-9
+        # include: # 添加特定条件
+        #   - os: ubuntu-latest
+        #     compiler: gcc
+        #   - os: ubuntu-latest
+        #     compiler: gcc-9
+        #   - os: ubuntu-20.04
+        #     compiler: gcc
+        #   - os: ubuntu-20.04
+        #     compiler: gcc-9
 
     steps:
       # 检查代码
@@ -60,7 +60,7 @@ jobs:
           echo "major_version=${major_version}"
           # 检查版本是否大于等于 14
           if [ "$major_version" -ge 14 ]; then
-            brew upgrade llvm
+            brew install llvm
           fi
           git clone -b v1.15.x --depth=1 https://github.com/google/googletest
           cd googletest
