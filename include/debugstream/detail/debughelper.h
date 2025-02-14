@@ -124,21 +124,3 @@ template <class T,
 }  // namespace gxt
 
 #define G_CLASS(type) gxt::detail::ClassDetail<type>(#type)
-
-namespace detail {
-// Get the number of input parameters
-template <typename... T>
-__attribute__((deprecated)) inline int GetParaNumber(T... para) {
-  return sizeof...(para);
-}
-
-// Prevent input null parameter
-template <typename T, T value>
-__attribute__((deprecated)) inline T PreventNULL(const T& para) {
-  return para;
-}
-template <typename T, T value>
-__attribute__((deprecated)) inline T PreventNULL() {
-  return value;
-}
-}  // namespace detail

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <termios.h>
-#include <unistd.h>
-
 #include "../stdc++.h"
 
 namespace gxt {
@@ -20,7 +17,21 @@ void DebugWaitPlugin(int time_s = 10);
 }  // namespace detail
 }  // namespace gxt
 
-#define G_DEBUG_WAIT_PLUGIN(...)                                     \
-  __attribute__((constructor(101))) void __g_debug_wait_plugin__() { \
-    gxt::detail::DebugWaitPlugin(__VA_ARGS__);                       \
-  }
+#if defined(_MSC_VER)
+  // MSVC平台使用DllMain或者全局对象方式
+  #define G_DEBUG_WAIT_PLUGIN(...)                                    \
+    namespace {                                                       \
+      struct GDebugWaitPluginInitializer {                            \
+        GDebugWaitPluginInitializer() {                               \
+          gxt::detail::DebugWaitPlugin(__VA_ARGS__);                  \
+        }                                                             \
+      };                                                              \
+      static GDebugWaitPluginInitializer g_debug_wait_initializer;    \
+    }
+#else
+  // GCC/Clang等平台使用constructor属性
+  #define G_DEBUG_WAIT_PLUGIN(...)                                     \
+    __attribute__((constructor(101))) void __g_debug_wait_plugin__() { \
+      gxt::detail::DebugWaitPlugin(__VA_ARGS__);                       \
+    }
+#endif

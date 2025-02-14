@@ -1048,8 +1048,8 @@ inline DebugStream::~DebugStream() {
   }
 }
 
+#include <stdarg.h>
 inline DebugStream& DebugStream::printf(const char* fmt, ...) {
-
   va_list ap;
   va_start(ap, fmt);
   char buffer[1024];

@@ -207,8 +207,11 @@ inline std::string PrintTree2(T* node, F_LEFT f_left, F_RIGHT f_right,
       j++;
     }
   }
-  //
-  std::unordered_map<char, std::string> M{{'=', "═"}, {'/', "╔"}, {'\\', "╗"}};
+  std::unordered_map<char, std::string> M{
+      {'=', "\u2550"},  // ═
+      {'/', "\u2554"},  // ╔
+      {'\\', "\u2557"} // ╗
+  };
   // std::unordered_map<char, std::string> M{{'=', "─"}, {'/', "╭"}, {'\\',
   // "╮"}};
   for (size_t i = 0; i < max_depth; i++) {
