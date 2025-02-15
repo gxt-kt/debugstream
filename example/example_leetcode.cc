@@ -1,5 +1,5 @@
-#include "debugstream/debugstream.h"
-#include "debugstream/detail/leetcode.h"
+#include <debugstream/debugstream.h>
+#include <debugstream/detail/leetcode.h>
 
 using treenode = gxt::leetcode::TreeNode;
 int main(int argc, char *argv[]) {

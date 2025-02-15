@@ -1,4 +1,4 @@
-#include "debugstream.h"
+#include <debugstream/debugstream.h>
 
 namespace test01 {
 void Test(int cnt = 1000) {

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "debugstream/debugstream.h"
+#include <debugstream/debugstream.h>
 
 void TestFun(int& a) {
   CALL_ONCE([&a]() { a++; });

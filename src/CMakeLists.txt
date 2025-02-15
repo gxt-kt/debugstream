@@ -36,9 +36,9 @@ endif()
 target_link_libraries(${MY_LIB_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(${MY_LIB_NAME}
                              PUBLIC
-                                $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include/debugstream>
+                                $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
                                 $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}> # for generated files in build mode
-                                $<INSTALL_INTERFACE:${MY_LIBRARY_INC_INSTALL_DIR}/debugstream> # for client in install mode
+                                $<INSTALL_INTERFACE:${MY_LIBRARY_INC_INSTALL_DIR}> # for client in install mode
                              PRIVATE
                                 ${header_path} # for source files
 )

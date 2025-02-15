@@ -1,4 +1,4 @@
-#include "debugstream/debugstream.h"
+#include <debugstream/debugstream.h>
 
 void Print() { std::cout << gxt::Singleton<int>::GetInstance() << std::endl; }
 

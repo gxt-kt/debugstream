@@ -25,8 +25,5 @@ set(SOURCE_EXAMPLE_FILES
 foreach(SOURCE_EXAMPLE ${SOURCE_EXAMPLE_FILES})
                             get_filename_component(EXEC ${SOURCE_EXAMPLE} NAME_WE)
     add_executable(${EXEC} ${SOURCE_EXAMPLE})
-    target_include_directories(${EXEC} PRIVATE
-                            ${${PROJECT_NAME}_SOURCE_DIR}/include
-    )
     target_link_libraries(${EXEC} PRIVATE ${MY_LIB_NAME})
 endforeach()

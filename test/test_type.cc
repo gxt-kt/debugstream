@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "debugstream.h"
+#include <debugstream/debugstream.h>
 
 TEST(test_type, type) {
   // ASSERT_EQ(G_TYPE(a), "int]");

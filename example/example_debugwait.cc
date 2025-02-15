@@ -1,4 +1,4 @@
-#include "debugstream/debugstream.h"
+#include <debugstream/debugstream.h>
 
 G_DEBUG_WAIT_PLUGIN(5)
 

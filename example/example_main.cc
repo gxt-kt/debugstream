@@ -1,6 +1,6 @@
-#include "debugstream.h"
-#include "fmt.h"
-#include "detail/debughelper.h"
+#include <debugstream/debugstream.h>
+#include <debugstream/fmt.h>
+#include <debugstream/detail/debughelper.h>
 
 // G_DEBUG_WAIT_PLUGIN();
 

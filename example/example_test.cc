@@ -1,5 +1,4 @@
-#include "debugstream.h"
-#include "fmt.h"
+#include <debugstream/debugstream.h>
 
 
 int main(int argc, char* argv[]) {

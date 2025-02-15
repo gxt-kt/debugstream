@@ -1,4 +1,4 @@
-#include "debugstream/debugstream.h"
+#include <debugstream/debugstream.h>
 
 int main(int argc, char *argv[]) {
   std::cout << G_GET_FILE_PATH() << std::endl;

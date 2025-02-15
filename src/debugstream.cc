@@ -1,2 +1,2 @@
-#include "debugstream.h"
+#include <debugstream/debugstream.h>
 

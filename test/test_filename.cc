@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "debugstream/debugstream.h"
+#include <debugstream/debugstream.h>
 
 TEST(test_filename, define_filename_api) {
   ASSERT_STREQ(G_GET_FILE_PATH(), __FILE__);
