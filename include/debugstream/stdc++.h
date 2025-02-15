@@ -55,5 +55,10 @@
 #include <condition_variable>
 #include <cstdlib>
 
+#ifdef _MSVC_LANG
+#define CPP_STANDARD _MSVC_LANG
+#else
+#define CPP_STANDARD __cplusplus
+#endif
 // support c++17 variant and optional
-#define SUPPORTS_CPP17 (__cplusplus >= 201703L)
+#define SUPPORTS_CPP17 (CPP_STANDARD >= 201703L)
