@@ -29,7 +29,7 @@ namespace filename {
     return gxt::filename::ExtractPathComponents(full_path).directory; \
   }()
 
-// 获取当前时间，格式化为 YYYY-MM-DDTHH:MM:SS
+// 获取当前时间，格式化为 YYYY-MM-DD_HH-MM-SS
 inline std::string GetCurrentTime() {
   std::time_t now = std::time(nullptr);
   std::tm *localTime = std::localtime(&now);
@@ -38,8 +38,8 @@ inline std::string GetCurrentTime() {
   oss << localTime->tm_year + 1900 << "-" << std::setfill('0') << std::setw(2)
       << (localTime->tm_mon + 1) << "-" << std::setfill('0') << std::setw(2)
       << localTime->tm_mday << "_" << std::setfill('0') << std::setw(2)
-      << localTime->tm_hour << ":" << std::setfill('0') << std::setw(2)
-      << localTime->tm_min << ":" << std::setfill('0') << std::setw(2)
+      << localTime->tm_hour << "-" << std::setfill('0') << std::setw(2)
+      << localTime->tm_min << "-" << std::setfill('0') << std::setw(2)
       << localTime->tm_sec;
 
   return oss.str();
