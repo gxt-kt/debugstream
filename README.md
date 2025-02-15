@@ -10,26 +10,39 @@ Complexly you can write like `gDebug("hello") << "world";` and so on.  The detai
 And the default gDebug() has enable the `space` between two `operator<<` and `newline` when deconstruct the object.
 If you use the class DebugStream create a new instantiation. The `space` function is exist but the `newline` is invalid.
 
-## Install and use in cmake
+## Install debugstream lib
 
-### Install debugstream lib
+**linux or macos**
 
-```cmake
-cmake -S . -B build
+```bash
+cmake -S . -B build -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF
 cmake --build build
 sudo cmake --install build
 ```
 
-### Use debugstream lib with cmake
+**windows**
+
+```bash
+cmake -S . -B build -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=“${YOUR_INSTALL_PATH}”
+cmake --build build --config Release
+cmake --install build --config Release
+```
+
+--- 
+
+
+## Use debugstream lib with cmake
 
 ```cmake
 find_package(debugstream)
 target_link_libraries(demo debugstream)
 ```
 
-## example1
+## Examples
 
-**use the default qDebug**
+### example1
+
+**use the default gDebug like qDebug**
 
 ```c++
 #include <debugstream/debugstream.h>
@@ -58,7 +71,7 @@ hello world!
 f=3.142
 ```
 
-## example2
+### example2
 
 Some high level use skills
 
