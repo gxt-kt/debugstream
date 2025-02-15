@@ -3,7 +3,7 @@
 #include "debugstream/debugstream.h"
 
 TEST(test_filename, define_filename_api) {
-  ASSERT_EQ(G_GET_FILE_PATH(), __FILE__);
+  ASSERT_STREQ(G_GET_FILE_PATH(), __FILE__);
   ASSERT_EQ(G_GET_FILE_FILENAME(), "test_filename.cc");
   ASSERT_EQ(G_GET_FILE_BASENAME(), "test_filename");
 }
