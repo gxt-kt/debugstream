@@ -29,11 +29,4 @@ foreach(SOURCE_EXAMPLE ${SOURCE_EXAMPLE_FILES})
                             ${${PROJECT_NAME}_SOURCE_DIR}/include
     )
     target_link_libraries(${EXEC} PRIVATE ${MY_LIB_NAME})
-    # 只在非 MSVC 编译器上链接 pthread
-    if(NOT MSVC)
-        target_link_libraries(${EXEC} PRIVATE pthread)
-    endif()
-    if(MSVC)
-        add_compile_options(/Zc:preprocessor)
-    endif()
 endforeach()

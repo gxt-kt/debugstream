@@ -24,6 +24,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_compile_options(-Wall)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 
+if (MSVC)
+    # 为每个目标启用独立的 PDB 文件
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /FS")
+endif()
+
 # installation destinations
 # must set before add_subdirectory
 if(UNIX OR VXWORKS)

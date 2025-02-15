@@ -26,8 +26,13 @@ set(src
 # configure config file
 configure_file("config.hpp.in" "${CMAKE_CURRENT_BINARY_DIR}/config_impl.hpp")
 
-find_package(Threads REQUIRED)
 add_library(${MY_LIB_NAME} SHARED ${detail_header} ${header} ${src})
+if(MSVC)
+   target_compile_options(${MY_LIB_NAME} PUBLIC /Zc:preprocessor)
+   target_compile_options(${MY_LIB_NAME} PUBLIC /utf-8)
+else()
+   target_link_libraries(${MY_LIB_NAME} PUBLIC pthread) 
+endif()
 target_link_libraries(${MY_LIB_NAME} PRIVATE ${CMAKE_THREAD_LIBS_INIT})
 target_include_directories(${MY_LIB_NAME}
                              PUBLIC
