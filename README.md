@@ -23,7 +23,7 @@ sudo cmake --install build
 **windows**
 
 ```bash
-cmake -S . -B build -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX=“${YOUR_INSTALL_PATH}”
+cmake -S . -B build -DBUILD_TESTS=OFF -DBUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX="${YOUR_INSTALL_PATH}" # remember to change install path
 cmake --build build --config Release
 cmake --install build --config Release
 ```
@@ -33,8 +33,30 @@ cmake --install build --config Release
 
 ## Use debugstream lib with cmake
 
+**linux or macos**
+
 ```cmake
-find_package(debugstream)
+find_package(debugstream REQUIRED)
+if(debugstream_FOUND)
+    message(STATUS "Found debugstream:")
+    message(STATUS "  - Version: ${debugstream_VERSION}")
+else()
+    message(FATAL_ERROR "debugstream not found!")
+endif()
+target_link_libraries(demo debugstream)
+```
+
+**windows**
+
+```cmake
+list(APPEND CMAKE_PREFIX_PATH  "${YOUR_INSTALL_PATH}")  # remember to change install path
+find_package(debugstream REQUIRED)
+if(debugstream_FOUND)
+    message(STATUS "Found debugstream:")
+    message(STATUS "  - Version: ${debugstream_VERSION}")
+else()
+    message(FATAL_ERROR "debugstream not found!")
+endif()
 target_link_libraries(demo debugstream)
 ```
 
